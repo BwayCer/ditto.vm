@@ -9,5 +9,6 @@
 ## 目錄
 
 
+* [創建虛擬硬碟](/create_virtual_hdd)
 * [通用金鑰](/vmpass-root_rsa)
 
