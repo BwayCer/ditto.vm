@@ -2,6 +2,10 @@
 # 創建虛擬硬碟
 
 
+# 關於本腳本與所遇問題
+# https://gitlab.com/BwayCer/gitVirtualMachine.vmware/tree/Rotom/create_virtual_hdd
+
+
 __dirname=`dirname $0`
 vmdkNames=()
 vmdkTypes=()
@@ -24,9 +28,14 @@ chooseName() {
 }
 
 chooseSize() {
-    local whichSize
+    local whichSize allowVmdk4064M
+    local lenVmdkEndNums=${#vmdkEndNums[@]}
 
-    printf ">> 選擇硬碟容量 (1: 512 MB (默認值)； 2: 4064 MB)： "
+    if [ $lenVmdkEndNums -ne 0 ]; then
+        allowVmdk4064M="； 2: 4064 MB"
+    fi
+
+    printf ">> 選擇硬碟容量 (1: 512 MB (默認值)$allowVmdk4064M)： "
     read whichSize
 
     case $whichSize in
@@ -98,7 +107,7 @@ handleOrder() {
 handleResult() {
     local idxA idxB
     local vmdkName vmdkType vmdkStartNum vmdkEndNum
-    local fileSector fileSectorM totalFileSectorM
+    local fileSector fileSizeM totalFileSizeM
     local fileSource newFileName
     local len=${#vmdkTypes[@]}
 
@@ -109,7 +118,7 @@ handleResult() {
         return
     fi
 
-    totalFileSectorM=0
+    totalFileSizeM=0
     echo
 
     if [ "$1" == "finish" ]; then
@@ -130,37 +139,39 @@ handleResult() {
 
         case $vmdkType in
             "0512M" )
-                fileSector="1048576"
-                fileSectorM=512
+                fileSector=1048576
+                fileSizeM=512
                 fileSource="$__dirname/sample_vHDD_0512M_s1048576.vmdk"
                 ;;
             "4064M" )
-                fileSector="8323072"
-                fileSectorM=4064
+                fileSector=8323072
+                fileSizeM=4064
                 fileSource="$__dirname/sample_vHDD_4064M_s8323072.vmdk"
                 ;;
         esac
 
         for idxB in $( seq $vmdkStartNum $vmdkEndNum )
         do
-            totalFileSectorM=$(( $totalFileSectorM + $fileSectorM ))
+            totalFileSizeM=$(( $totalFileSizeM + $fileSizeM ))
             newFileName="vHDD-s`printf '%03d' $idxB`$vmdkName.vmdk"
 
             if [ "$1" == "finish" ]; then
                 echo "RW $fileSector SPARSE \"$newFileName\""
                 cp $fileSource $__dirname/$newFileName
             else
-                echo -e "size: \t $fileSectorM MB \t new file: $newFileName"
+                echo -e "size: \t $fileSizeM MB \t new file: $newFileName"
             fi
         done
     done
 
     if [ "$1" == "finish" ]; then
         echo
-        echo "ddb.geometry.cylinders = \"$totalFileSectorM\""
+        echo "ddb.geometry.cylinders = \"$totalFileSizeM\""
+        echo 'ddb.geometry.heads = "64"'
+        echo 'ddb.geometry.sectors = "32"'
         echo
     else
-        echo -e "total: \t $totalFileSectorM MB"
+        echo -e "total: \t $totalFileSizeM MB"
         createVmdk
     fi
 }
