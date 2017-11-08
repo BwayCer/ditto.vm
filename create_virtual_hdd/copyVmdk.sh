@@ -32,17 +32,20 @@ chooseSize() {
     local lenVmdkEndNums=${#vmdkEndNums[@]}
 
     if [ $lenVmdkEndNums -ne 0 ]; then
-        allowVmdk4064M="； 2: 4064 MB"
+        allowVmdk4064M="； 3: 4064 MB"
     fi
 
-    printf ">> 選擇硬碟容量 (1: 512 MB (默認值)$allowVmdk4064M)： "
+    printf ">> 選擇硬碟容量 (1: 128 MB (默認值)； 2: 512 MB$allowVmdk4064M)： "
     read whichSize
 
     case $whichSize in
         "" | 1 )
-            chooseQuantity "$1" "0512M"
+            chooseQuantity "$1" "0128M"
             ;;
         2 )
+            chooseQuantity "$1" "0512M"
+            ;;
+        3 )
             chooseQuantity "$1" "4064M"
             ;;
         * )
@@ -138,6 +141,11 @@ handleResult() {
         fi
 
         case $vmdkType in
+            "0128M" )
+                fileSector=262144
+                fileSizeM=128
+                fileSource="$__dirname/sample_vHDD_128M_s262144.vmdk"
+                ;;
             "0512M" )
                 fileSector=1048576
                 fileSizeM=512
