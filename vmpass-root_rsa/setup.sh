@@ -1,22 +1,8 @@
-通用金鑰
-=======
+#!/bin/sh
+# 通用金鑰設置
 
 
-**易取得的金鑰：**
-
-```sh
-curl -L https://goo.gl/awcLuz | sh
-
-# -rw-------  authorized_keys
-# -rw-------  vmpass-root_rsa
-# -rw-r--r--  vmpass-root_rsa.pub
-```
-
-
-**vmpass-root_rsa：** (-rw-------)
-
-```
------BEGIN RSA PRIVATE KEY-----
+rsa='-----BEGIN RSA PRIVATE KEY-----
 MIIEowIBAAKCAQEAvq/X2WM0zNfqtNsEN8ZRXWtCNmSpdeeM2TBLhtCw7TjYHsyq
 Hhk8U0GuDdSqFDjmsTQscBvXYCx9qzsZoZ/087+orzbYL47VQUfvA9cO7bdJfaFf
 sjDcFD06ett04XYfEpzwBVHM8Y2bDx8CFJ/9oaNiOp84b0JXmSHg/L2TCXq+rFn4
@@ -42,13 +28,21 @@ mRbYM6JKiDsW1YYMgcryhcXYp5KHKzENL/EcslCkk0L55dzqu+R1PpFxYptbmtrS
 HIM7AoGBANOZz2WKF5ZEsBCcFYYjfxrQkZarNlGxFhrY6mOknV+3QOqQgyngzhiu
 4aNtYGRQMRsqnqrEMUv6j8sOaKKZk9kYa7gcl5z+t7ekawSUTibSLAk3fDPgEVQa
 jHRZhi0AsPX6EV/VTd6dzp/gEIOycB5J0nDXI24LxFeVf1sLF0EL
------END RSA PRIVATE KEY-----
-```
+-----END RSA PRIVATE KEY-----'
 
+pubRsa='ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC+r9fZYzTM1+q02wQ3xlFda0I2ZKl154zZMEuG0LDtONgezKoeGTxTQa4N1KoUOOaxNCxwG9dgLH2rOxmhn/Tzv6ivNtgvjtVBR+8D1w7tt0l9oV+yMNwUPTp623Thdh8SnPAFUczxjZsPHwIUn/2ho2I6nzhvQleZIeD8vZMJer6sWfg8kpLyfYFDQKJeW3A1N1eL/F8SOu7JsyyaUDFHdhRY8nn7Q6b5c0NVREq+ptFhUF+mlKpCcmCRxMH+tYQNxbnE3rx7CxDgTUaODum8bnjb3UWCCCr4WtcD+PYo4NFMuCTD5D+bPnv098t0/ZMtE5Nh0+JttXV3zQkynFx3 root@vmware'
 
-**vmpass-root_rsa.pub：** (-rw-r--r--)
+dirSsh="$HOME/.ssh"
 
-```
-ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC+r9fZYzTM1+q02wQ3xlFda0I2ZKl154zZMEuG0LDtONgezKoeGTxTQa4N1KoUOOaxNCxwG9dgLH2rOxmhn/Tzv6ivNtgvjtVBR+8D1w7tt0l9oV+yMNwUPTp623Thdh8SnPAFUczxjZsPHwIUn/2ho2I6nzhvQleZIeD8vZMJer6sWfg8kpLyfYFDQKJeW3A1N1eL/F8SOu7JsyyaUDFHdhRY8nn7Q6b5c0NVREq+ptFhUF+mlKpCcmCRxMH+tYQNxbnE3rx7CxDgTUaODum8bnjb3UWCCCr4WtcD+PYo4NFMuCTD5D+bPnv098t0/ZMtE5Nh0+JttXV3zQkynFx3 root@vmware
-```
+mkdir "$dirSsh"
+chmod 700 "$dirSsh"
+
+echo -e "$rsa" > "$dirSsh/vmpass-root_rsa"
+chmod 600 "$dirSsh/vmpass-root_rsa"
+
+echo "$pubRsa" > "$dirSsh/vmpass-root_rsa.pub"
+chmod 644 "$dirSsh/vmpass-root_rsa.pub"
+
+echo "$pubRsa" > "$dirSsh/authorized_keys"
+chmod 600 "$dirSsh/authorized_keys"
 
