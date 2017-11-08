@@ -9,6 +9,8 @@ vmdkStartNums=()
 vmdkEndNums=()
 
 chooseName() {
+    local whatName
+
     printf ">> 硬碟名稱 (可選)： "
     read whatName
 
@@ -22,6 +24,8 @@ chooseName() {
 }
 
 chooseSize() {
+    local whichSize
+
     printf ">> 選擇硬碟容量 (1: 512 MB (默認值)； 2: 4064 MB)： "
     read whichSize
 
@@ -67,7 +71,7 @@ chooseQuantity() {
 }
 
 handleOrder() {
-    local vmdkName
+    local vmdkName range
     local len=${#vmdkTypes[@]}
 
     vmdkNames[     $len ]="$1"
@@ -82,11 +86,12 @@ handleOrder() {
     fi
 
     if [ $3 -eq $4 ]; then
-        echo ">> [紀錄] $len: $vmdkName, $2, $3"
+        range="$3"
     else
-        echo ">> [紀錄] $len: $vmdkName, $2, $3-$4"
+        range="$3-$4"
     fi
 
+    echo ">> [紀錄] $len: $vmdkName, $2, $range"
     createVmdk
 }
 
@@ -161,6 +166,8 @@ handleResult() {
 }
 
 createVmdk() {
+    local isContinue
+
     echo
     printf "創建虛擬硬碟 (Yes(y): 創建； Finish(f): 完成； List(l): 查看清單)： "
     read isContinue
