@@ -157,7 +157,7 @@ handleResult() {
 
             if [ "$1" == "finish" ]; then
                 echo "RW $fileSector SPARSE \"$newFileName\""
-                cp $fileSource $__dirname/$newFileName
+                cp "$fileSource" "$PWD/$newFileName"
             else
                 echo -e "size: \t $fileSizeM MB \t new file: $newFileName"
             fi
