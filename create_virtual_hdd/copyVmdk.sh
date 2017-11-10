@@ -14,14 +14,13 @@ targetDir_forMainVmdk=""
 txtMainSampleA='# Disk DescriptorFile
 version=1
 encoding="Big5"
-CID=2124d753
+CID=ffffffff
 parentCID=ffffffff
 isNativeSnapshot="no"
 createType="twoGbMaxExtentSparse"
 
 # Extent description'
 txtMainSampleB='
-
 # The Disk Data Base
 #DDB
 
