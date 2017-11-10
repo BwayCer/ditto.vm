@@ -5,7 +5,7 @@
 **易取得的金鑰：**
 
 ```sh
-curl -L https://goo.gl/awcLuz | sh
+curl -L https://goo.gl/xD8yyu | sh
 
 # -rw-------  authorized_keys
 # -rw-------  vmpass-root_rsa
