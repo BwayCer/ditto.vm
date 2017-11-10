@@ -7,60 +7,201 @@
 
 
 __dirname=`dirname $0`
-vmdkNames=()
-vmdkTypes=()
-vmdkStartNums=()
-vmdkEndNums=()
+targetDir="$1"
+mainVmdkName="$2"
 
-chooseName() {
-    local whatName
+targetDir_forMainVmdk=""
+txtMainSampleA='# Disk DescriptorFile
+version=1
+encoding="Big5"
+CID=2124d753
+parentCID=ffffffff
+isNativeSnapshot="no"
+createType="twoGbMaxExtentSparse"
 
-    printf ">> 硬碟名稱 (可選)： "
-    read whatName
+# Extent description'
+txtMainSampleB='
 
-    case $whatName in
-        "" )
-            chooseSize ""
+# The Disk Data Base
+#DDB
+
+ddb.adapterType = "lsilogic"'
+txtMainSampleC='
+ddb.longContentID = "ffffffffffffffffffffffffffffffff"
+ddb.uuid = "ff ff ff ff ff ff ff ff-ff ff ff ff ff ff ff ff"
+ddb.virtualHWVersion = "12"'
+
+fnPrintfClear() {
+    local len=$1
+    local txt=$2
+
+    local loop=0
+
+    for loop in $( seq 1 $len )
+    do
+        printf "\b \b"
+    done
+
+    if [ -n "$txt" ]; then
+        printf "$txt"
+    fi
+}
+
+fnobjVmdkSample_sector=""
+fnobjVmdkSample_sizeM=""
+fnobjVmdkSample_source=""
+fnobjVmdkSample() {
+    local chooseSize="$1"
+
+    local sector sizeM source
+    local sampleFilename="$__dirname/sample_vHDD"
+
+    case $chooseSize in
+        "0128M" )
+            sector=262144
+            sizeM=128
+            source="${sampleFilename}_128M_s262144.vmdk"
             ;;
-        * )
-            chooseSize "$whatName"
+        "0512M" )
+            sector=1048576
+            sizeM=512
+            source="${sampleFilename}_0512M_s1048576.vmdk"
+            ;;
+        "4064M" )
+            sector=8323072
+            sizeM=4064
+            source="${sampleFilename}_4064M_s8323072.vmdk"
+            ;;
+    esac
+
+    fnobjVmdkSample_sector=$sector
+    fnobjVmdkSample_sizeM=$sizeM
+    fnobjVmdkSample_source="$source"
+}
+
+fnobjCreateList_name=""
+fnobjCreateList_type=""
+fnobjCreateList_startNum=""
+fnobjCreateList_endNum=""
+fnobjCreateList_len=0
+fnobjCreateList_names=()
+fnobjCreateList_types=()
+fnobjCreateList_startNums=()
+fnobjCreateList_endNums=()
+fnobjCreateList() {
+    local method=$1
+
+    local idx
+
+    case "$method" in
+        "add" )
+            idx=${#fnobjCreateList_types[@]}
+            fnobjCreateList_names[     $idx ]="$2"
+            fnobjCreateList_types[     $idx ]="$3"
+            fnobjCreateList_startNums[ $idx ]=$4
+            fnobjCreateList_endNums[   $idx ]=$5
+            fnobjCreateList_len=$(( $idx + 1 ))
+            ;;
+        "get" )
+            idx=$2
+            fnobjCreateList_name="${fnobjCreateList_names[         $idx ]}"
+            fnobjCreateList_type="${fnobjCreateList_types[         $idx ]}"
+            fnobjCreateList_startNum=${fnobjCreateList_startNums[ $idx ]}
+            fnobjCreateList_endNum=${fnobjCreateList_endNums[     $idx ]}
+            ;;
     esac
 }
 
-chooseSize() {
-    local whichSize allowVmdk4064M
-    local lenVmdkEndNums=${#vmdkEndNums[@]}
+fnChooseTargetDir() {
+    local wherePath
 
-    if [ $lenVmdkEndNums -ne 0 ]; then
-        allowVmdk4064M="； 3: 4064 MB"
+    if [ -n "$PWD/$targetDir" ]; then
+        targetDir_forMainVmdk="../$targetDir/"
+        targetDir="$PWD/$targetDir"
+        echo "目標目錄： $targetDir"
+        return
     fi
 
-    printf ">> 選擇硬碟容量 (1: 128 MB (默認值)； 2: 512 MB$allowVmdk4064M)： "
+    printf "選擇目標目錄 (默認 \"$PWD\")： "
+    read wherePath
+
+    if [ -z "$wherePath" ]; then
+        targetDir_forMainVmdk=""
+        targetDir="$PWD"
+    else
+        targetDir_forMainVmdk="../$wherePath/"
+        targetDir="$PWD/$wherePath"
+    fi
+
+    echo ">> 目標目錄： $targetDir"
+}
+
+fnNameMainVmdk() {
+    local whatName
+
+    if [ -n "$mainVmdkName" ]; then
+        echo "硬碟名稱： $mainVmdkName"
+        return
+    fi
+
+    echo
+    printf '命名硬碟名稱 (默認 "vHDD")： '
+    read whatName
+
+    if [ -z "$whatName" ]; then
+        mainVmdkName="vHDD"
+    else
+        mainVmdkName="$whatName"
+    fi
+
+    echo ">> 硬碟名稱： $mainVmdkName"
+}
+
+fnNameVmdk() {
+    local whatName
+
+    printf ">> 切分硬碟名稱 (可選)： "
+    read whatName
+
+    if [ -z "$whatName" ]; then
+        fnChooseSize ""
+    else
+        fnChooseSize "$whatName"
+    fi
+}
+
+fnChooseSize() {
+    local whichSize allowOver512M
+
+    if [ $fnobjCreateList_len -ne 0 ]; then
+        allowOver512M="； 3: 4064 MB"
+    fi
+
+    printf ">> 選擇硬碟容量 (1: 128 MB (默認值)； 2: 512 MB$allowOver512M)： "
     read whichSize
 
     case $whichSize in
         "" | 1 )
-            chooseQuantity "$1" "0128M"
+            fnChooseQuantity "$1" "0128M"
             ;;
         2 )
-            chooseQuantity "$1" "0512M"
+            fnChooseQuantity "$1" "0512M"
             ;;
         3 )
-            chooseQuantity "$1" "4064M"
+            fnChooseQuantity "$1" "4064M"
             ;;
         * )
-            chooseSize "$1"
+            fnChooseSize "$1"
     esac
 }
 
-chooseQuantity() {
-    local startNum endNum defaultNum
-    local lenVmdkEndNums=${#vmdkEndNums[@]}
+fnChooseQuantity() {
+    local startNum endNum
+    local defaultNum=1
 
-    if [ $lenVmdkEndNums -eq 0 ]; then
-        defaultNum=1
-    else
-        defaultNum=$(( ${vmdkEndNums[ $(( $lenVmdkEndNums - 1 )) ]} + 1 ))
+    if [ $fnobjCreateList_len -ne 0 ]; then
+        fnobjCreateList "get" $(( $fnobjCreateList_len - 1 ))
+        defaultNum=$(( $fnobjCreateList_endNum + 1 ))
     fi
 
     printf ">> 給定起始編號 (ex: 1； 默認值 $defaultNum)： "
@@ -79,17 +220,11 @@ chooseQuantity() {
 
     startNum=$(( $startNum ))
     endNum=$(( $endNum ))
-    handleOrder "$1" "$2" $startNum $endNum
+    fnHandleOrder "$1" "$2" $startNum $endNum
 }
 
-handleOrder() {
-    local vmdkName range
-    local len=${#vmdkTypes[@]}
-
-    vmdkNames[     $len ]="$1"
-    vmdkTypes[     $len ]="$2"
-    vmdkStartNums[ $len ]=$3
-    vmdkEndNums[   $len ]=$4
+fnHandleOrder() {
+    local reconfirm orderMsg vmdkName range
 
     if [ -z "$1" ]; then
         vmdkName="null Name"
@@ -103,88 +238,110 @@ handleOrder() {
         range="$3-$4"
     fi
 
-    echo ">> [紀錄] $len: $vmdkName, $2, $range"
-    createVmdk
+    orderMsg="$fnobjCreateList_len: $vmdkName, $2, $range"
+
+    printf ">> 提交 $orderMsg (Yes； No (默認))； "
+    read reconfirm
+
+    case $reconfirm in
+        [Yy] | "Yes" | "yes" )
+            fnobjCreateList "add" "$1" "$2" $3 $4
+            echo ">> [紀錄] $orderMsg"
+            ;;
+        * )
+            echo ">> 放棄提交"
+            ;;
+    esac
+
+    fnCreateVmdk
 }
 
-handleResult() {
-    local idxA idxB
-    local vmdkName vmdkType vmdkStartNum vmdkEndNum
-    local fileSector fileSizeM totalFileSizeM
-    local fileSource newFileName
-    local len=${#vmdkTypes[@]}
+fnHandleResult() {
+    local method="$1"
 
-    if [ "$1" == "list" ] && [ $len -eq 0 ]; then
+    local idxA idxB txtLine createNum createTotal
+    local vmdkName vmdkStartNum vmdkEndNum
+    local vmdkNum vmdkSector vmdkSizeM totalFileSizeM
+    local fileSource newMainVmdkFileName newFileVmdkName
+
+    if [ "$method" == "list" ] && [ $fnobjCreateList_len -eq 0 ]; then
         echo
         echo 空 ...
-        createVmdk
+        fnCreateVmdk
         return
     fi
 
     totalFileSizeM=0
     echo
 
-    if [ "$1" == "finish" ]; then
-        echo '".vmdk" Info:'
-        echo
+    if [ "$method" == "finish" ]; then
+        newMainVmdkFileName="$targetDir/$mainVmdkName.vmdk"
+        echo "$txtMainSampleA" > "$newMainVmdkFileName"
     fi
 
-    for (( idxA=0 ; idxA < $len ; idxA++ ))
+    for (( idxA=0 ; idxA < $fnobjCreateList_len ; idxA++ ))
     do
-        vmdkName="${vmdkNames[$idxA]}"
-        vmdkType="${vmdkTypes[$idxA]}"
-        vmdkStartNum=${vmdkStartNums[$idxA]}
-        vmdkEndNum=${vmdkEndNums[$idxA]}
+        fnobjCreateList "get" $idxA
+        fnobjVmdkSample "$fnobjCreateList_type"
+        vmdkName="$fnobjCreateList_name"
+        vmdkStartNum=$fnobjCreateList_startNum
+        vmdkEndNum=$fnobjCreateList_endNum
+        vmdkSector=$fnobjVmdkSample_sector
+        vmdkSizeM=$fnobjVmdkSample_sizeM
+        fileSource="$fnobjVmdkSample_source"
 
         if [ -n "$vmdkName" ]; then
             vmdkName="-$vmdkName"
         fi
 
-        case $vmdkType in
-            "0128M" )
-                fileSector=262144
-                fileSizeM=128
-                fileSource="$__dirname/sample_vHDD_128M_s262144.vmdk"
-                ;;
-            "0512M" )
-                fileSector=1048576
-                fileSizeM=512
-                fileSource="$__dirname/sample_vHDD_0512M_s1048576.vmdk"
-                ;;
-            "4064M" )
-                fileSector=8323072
-                fileSizeM=4064
-                fileSource="$__dirname/sample_vHDD_4064M_s8323072.vmdk"
-                ;;
-        esac
-
+        createNum=0
+        createTotal=$(( $vmdkEndNum - $vmdkStartNum + 1 ))
         for idxB in $( seq $vmdkStartNum $vmdkEndNum )
         do
-            totalFileSizeM=$(( $totalFileSizeM + $fileSizeM ))
-            newFileName="vHDD-s`printf '%03d' $idxB`$vmdkName.vmdk"
+            createNum=$(( $createNum + 1 ))
+            vmdkNum=`printf '%03d' $idxB`
 
-            if [ "$1" == "finish" ]; then
-                echo "RW $fileSector SPARSE \"$newFileName\""
-                cp "$fileSource" "$PWD/$newFileName"
+            if [ "$method" == "finish" ]; then
+                fnPrintfClear 99
+                printf "\r$mainVmdkName%-18s   [%3s/%3s]   %3s %s" "$vmdkName" "$createNum" "$createTotal" "$idxB" "."
+            fi
+
+            totalFileSizeM=$(( $totalFileSizeM + $vmdkSizeM ))
+            newFileVmdkName="$mainVmdkName-s$vmdkNum$vmdkName.vmdk"
+
+            if [ "$method" == "finish" ]; then
+                printf "."
+                cp "$fileSource" "$targetDir/$newFileVmdkName"
+                printf "."
+                printf "RW %7s SPARSE \"%s\"\n" "$vmdkSector" "$targetDir_forMainVmdk$newFileVmdkName" >> "$newMainVmdkFileName"
+                fnPrintfClear 3 " OK"
             else
-                echo -e "size: \t $fileSizeM MB \t new file: $newFileName"
+                printf "size:\t%6s MB \t new file: %s\n" "$vmdkSizeM" "$newFileVmdkName"
             fi
         done
+
+        if [ "$method" == "finish" ]; then
+            fnPrintfClear 7 "OK"
+            printf "\n"
+        fi
     done
 
-    if [ "$1" == "finish" ]; then
+    if [ "$method" == "finish" ]; then
+txtLine="
+ddb.geometry.cylinders = \"$totalFileSizeM\"
+ddb.geometry.heads = \"64\"
+ddb.geometry.sectors = \"32\""
+
+        echo "$txtMainSampleB""$txtLine""$txtMainSampleC" >> "$newMainVmdkFileName"
         echo
-        echo "ddb.geometry.cylinders = \"$totalFileSizeM\""
-        echo 'ddb.geometry.heads = "64"'
-        echo 'ddb.geometry.sectors = "32"'
         echo
     else
-        echo -e "total: \t $totalFileSizeM MB"
-        createVmdk
+        printf "total:\t%6s MB\n" "$totalFileSizeM"
+        fnCreateVmdk
     fi
 }
 
-createVmdk() {
+fnCreateVmdk() {
     local isContinue
 
     echo
@@ -193,20 +350,31 @@ createVmdk() {
 
     case $isContinue in
         [Yy] | "Yes" | "yes" )
-            chooseName
+            fnNameVmdk
             ;;
         [Nn] | "No" | "no" )
             ;;
         [Ff] | "finish" | "finish" )
-            handleResult "finish"
+            if [ ! -d "$targetDir" ]; then
+                if [ -e "$targetDir" ]; then
+                    rm "$targetDir"
+                fi
+
+                mkdir "$targetDir"
+            fi
+
+            fnHandleResult "finish"
             ;;
         [Ll] | "List" | "list" )
-            handleResult "list"
+            fnHandleResult "list"
             ;;
         *)
-            createVmdk
+            fnCreateVmdk
     esac
 }
 
-createVmdk
+echo
+fnChooseTargetDir
+fnNameMainVmdk
+fnCreateVmdk
 
