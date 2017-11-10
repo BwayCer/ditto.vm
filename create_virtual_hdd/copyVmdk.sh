@@ -46,6 +46,14 @@ fnPrintfClear() {
     fi
 }
 
+rtnJoinBy=""
+fnJoinBy() {
+    local separator="$1"; shift
+    regex="$( printf "${separator}%s" "$@" )"
+    regex="${regex:${#separator}}"
+    rtnJoinBy="$regex"
+}
+
 fnobjVmdkSample_sector=""
 fnobjVmdkSample_sizeM=""
 fnobjVmdkSample_source=""
@@ -262,6 +270,7 @@ fnHandleResult() {
     local vmdkName vmdkStartNum vmdkEndNum
     local vmdkNum vmdkSector vmdkSizeM totalFileSizeM
     local fileSource newMainVmdkFileName newFileVmdkName
+    local errMsg_cp=()
 
     if [ "$method" == "list" ] && [ $fnobjCreateList_len -eq 0 ]; then
         echo
@@ -311,6 +320,10 @@ fnHandleResult() {
             if [ "$method" == "finish" ]; then
                 printf "."
                 cp "$fileSource" "$targetDir/$newFileVmdkName"
+                # 無法發現異常
+                # if [ $? -eq 1 ]; then
+                #     errMsg_cp[ ${#errMsg_cp[@]} ]="$vmdkNum"
+                # fi
                 printf "."
                 printf "RW %7s SPARSE \"%s\"\n" "$vmdkSector" "$targetDir_forMainVmdk$newFileVmdkName" >> "$newMainVmdkFileName"
                 fnPrintfClear 3 " OK"
@@ -326,6 +339,12 @@ fnHandleResult() {
     done
 
     if [ "$method" == "finish" ]; then
+        # 無法發現異常
+        # if [ ${#errMsg_cp[@]} -ne 0 ]; then
+        #     joinBy ", " "${errMsg_cp[@]}"
+        #     echo -e "\e[1;31m>> [異常] 煩請檢查編號為 $rtnJoinBy 之部分。\e[0m"
+        # fi
+
 txtLine="
 ddb.geometry.cylinders = \"$totalFileSizeM\"
 ddb.geometry.heads = \"64\"
