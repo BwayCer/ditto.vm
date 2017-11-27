@@ -13,3 +13,11 @@
 
 建構於視窗的虛擬作業平台。
 
+
+
+## 程式載點：
+
+
+* [Cygwin](https://www.cygwin.com/)
+* [VMware Workstation Player](https://www.vmware.com/products/player/playerpro-evaluation.html)
+
