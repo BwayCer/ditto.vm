@@ -1,0 +1,174 @@
+#!/bin/bash
+# 虛擬硬碟資訊
+
+
+## info.txt
+# <name>   <size>   [<start>-<end>/<number>]   [ <start> - <end> / <grainSector> (<grainSize>) ]
+
+
+__dirname=`dirname $0`
+binDirPath="$__dirname"
+
+
+fnMain() {
+    local vhddDirPath=`"$binDirPath/path.resolve" "$1"`
+
+
+    if [ -n "`cat "$vhddDirPath/info.txt" | sed -n "1p" | grep "^# overdue"`" ]; then
+        "$binDirPath/hdd_info_check" "$vhddDirPath"
+        if [ $? -eq 1 ]; then exit 1; fi
+    elif [ -n "`cat "$vhddDirPath/info.txt" | sed -n "3p"`" ]; then
+        cat "$vhddDirPath/info.txt"
+        exit
+    elif [ ! -f "$vhddDirPath/.info.tmp" ]; then
+        "$binDirPath/hdd_info_check" "$vhddDirPath"
+        if [ $? -eq 1 ]; then exit 1; fi
+    fi
+
+
+    local tmp
+    local vhddInfo vhddInfoSummary txtVhddInfo txtVhddInfoSummary
+    local amount totalSize totalGrainSize
+    local lenName lenSize lenNum lenGrainSector
+
+    vhddInfo=`cat "$vhddDirPath/.info.tmp"`
+
+    if [ -z "$vhddInfo" ]; then
+        cat /dev/null > "$vhddDirPath/info.txt"
+        exit
+    fi
+
+    vhddInfoSummary=`echo -e "$vhddInfo" | sed -n "1p"`
+    vhddInfo=`       echo -e "$vhddInfo" | sed    "1d"`
+
+
+    amount=`         echo "$vhddInfoSummary" | cut -d " " -f 2`
+    totalSize=`      echo "$vhddInfoSummary" | cut -d " " -f 4`
+    totalGrainSize=`echo "$vhddInfoSummary" | cut -d " " -f 6`
+    totalSize=`     "$binDirPath/sizeUnit" $totalSize`
+    totalGrainSize=`"$binDirPath/sizeUnit" $(( $totalGrainSize * 1024 * 1024 ))`
+    txtVhddInfoSummary="amount: $amount, totalSize: $totalSize, totalGrainSize: $totalGrainSize"
+
+
+    txtVhddInfo=`echo -e "$vhddInfo" | cut -d " " -f 2,3,4,6`
+    fnReadLine fnResolveVhddInfo_readLine "$txtVhddInfo"
+    txtVhddInfo="$rtnResolveVhddInfo_readLine"
+
+
+    lenName=`      echo -e "$txtVhddInfo" | cut -d " " -f 1 | wc -L`
+    lenNum=`    echo -e "$txtVhddInfo" | cut -d " " -f 4 | wc -L`
+    lenGrainSector=`echo -e "$txtVhddInfo" | cut -d " " -f 7 | wc -L`
+
+    tmp=`        echo -e "$txtVhddInfo" | cut -d " " -f 2`
+    tmp="$tmp\n"`echo -e "$txtVhddInfo" | cut -d " " -f 9`
+    lenSize=`echo -e "$tmp" | wc -L`
+
+    tmp="%-${lenName}s   %${lenSize}s   [%${lenNum}s-%${lenNum}s/%${lenNum}s]"
+    tmp="$tmp   [ %${lenGrainSector}s - %${lenGrainSector}s / %${lenGrainSector}s (%${lenSize}s) ]\n"
+    txtVhddInfo=`printf "$tmp" $txtVhddInfo | sed "1i $txtVhddInfoSummary\n"`
+
+
+    echo "$txtVhddInfo" > "$vhddDirPath/info.txt"
+    cat "$vhddDirPath/info.txt"
+}
+
+
+fnReadLine() {
+    local actFunc="$1"
+    local txtMsg="$2"
+    shift 2
+
+    local idx
+    local lenTxtMsg=`echo -e "$txtMsg" | wc -l`
+
+    $actFunc start "$@"
+
+    for idx in `seq 1 $lenTxtMsg`
+    do
+        $actFunc run "$@" `echo -e "$txtMsg" | sed -n "${idx}p"`
+    done
+
+    $actFunc end "$@"
+}
+
+rtnResolveVhddInfo_readLine=""
+fnResolveVhddInfo_readLine() {
+    local method=$1; shift
+    local numNumber=$1
+    local name="$2"
+    local size=$3
+    local grainSizeM=$4
+
+    local runDot
+
+    case $method in
+        "start" )
+            fnResolveVhddInfo_readLine_runDot=0
+            fnResolveVhddInfo_readLine_endGrainSizeM=0
+            fnResolveVhddInfo_readLine_refresh
+            ;;
+        "end" )
+            fnResolveVhddInfo_readLine_record
+            rtnResolveVhddInfo_readLine=`echo -e "$rtnResolveVhddInfo_readLine" | sed "1d"`
+            fnResolveVhddInfo_readLine_runDot=0
+            fnResolveVhddInfo_readLine_endGrainSizeM=0
+            fnResolveVhddInfo_readLine_refresh
+            ;;
+        "run" )
+            if [ "$fnResolveVhddInfo_readLine_runDot" -eq 0 ]; then
+                fnResolveVhddInfo_readLine_runDot=1
+                fnResolveVhddInfo_readLine_name="$name"
+                fnResolveVhddInfo_readLine_startNum=$numNumber
+                fnResolveVhddInfo_readLine run "$@"
+            elif [ "$name" == "$fnResolveVhddInfo_readLine_name" ]; then
+                fnResolveVhddInfo_readLine_runDot=$(( $fnResolveVhddInfo_readLine_runDot + 1 ))
+                "$binDirPath/runingDot" $fnResolveVhddInfo_readLine_runDot
+
+                fnResolveVhddInfo_readLine_size=$(( $fnResolveVhddInfo_readLine_size + $size ))
+                fnResolveVhddInfo_readLine_endNum=$numNumber
+                fnResolveVhddInfo_readLine_endGrainSizeM=$(( $fnResolveVhddInfo_readLine_endGrainSizeM + $grainSizeM ))
+            else
+                fnResolveVhddInfo_readLine_record
+                fnResolveVhddInfo_readLine_refresh
+                fnResolveVhddInfo_readLine_name="$name"
+                fnResolveVhddInfo_readLine_startNum=$numNumber
+                fnResolveVhddInfo_readLine_startGrainSizeM=$fnResolveVhddInfo_readLine_endGrainSizeM
+                fnResolveVhddInfo_readLine run "$@"
+            fi
+            ;;
+    esac
+}
+fnResolveVhddInfo_readLine_runDot=0
+fnResolveVhddInfo_readLine_name=""
+fnResolveVhddInfo_readLine_size=0
+fnResolveVhddInfo_readLine_startNum=0
+fnResolveVhddInfo_readLine_endNum=0
+fnResolveVhddInfo_readLine_startGrainSizeM=0
+fnResolveVhddInfo_readLine_endGrainSizeM=0
+fnResolveVhddInfo_readLine_refresh() {
+    fnResolveVhddInfo_readLine_name=""
+    fnResolveVhddInfo_readLine_size=0
+    fnResolveVhddInfo_readLine_startNum=0
+    fnResolveVhddInfo_readLine_endNum=0
+    fnResolveVhddInfo_readLine_startGrainSizeM=0
+}
+fnResolveVhddInfo_readLine_record() {
+    local totalGrainSizeM=$(( $fnResolveVhddInfo_readLine_endGrainSizeM - $fnResolveVhddInfo_readLine_startGrainSizeM ))
+    local sizeUnit=`"$binDirPath/sizeUnit" $fnResolveVhddInfo_readLine_size`
+    local totalGrainSizeUnit=`"$binDirPath/sizeUnit" $(( $totalGrainSizeM * 1024 * 1024 ))`
+
+    rtnResolveVhddInfo_readLine="$rtnResolveVhddInfo_readLine\n`printf "%s %s %s %s %s %s %s %s %s" \
+        "$fnResolveVhddInfo_readLine_name" \
+         $sizeUnit \
+         $fnResolveVhddInfo_readLine_startNum \
+         $fnResolveVhddInfo_readLine_endNum \
+        $(( $fnResolveVhddInfo_readLine_endNum - $fnResolveVhddInfo_readLine_startNum + 1 )) \
+        $(( $fnResolveVhddInfo_readLine_startGrainSizeM * 1024 * 2 )) \
+        $(( $fnResolveVhddInfo_readLine_endGrainSizeM * 1024 * 2 - 1 )) \
+        $(( $totalGrainSizeM * 1024 * 2 )) \
+         $totalGrainSizeUnit`"
+}
+
+
+fnMain "$@"
+

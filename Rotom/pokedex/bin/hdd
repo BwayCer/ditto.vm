@@ -1,0 +1,49 @@
+#!/bin/bash
+# 虛擬硬碟
+
+
+__dirname=`dirname $0`
+binDirPath="$__dirname"
+
+
+fnMain() {
+    cmd="$1"; shift
+
+    case "$cmd" in
+        "info" )
+            fnHddInfo "$@"
+            ;;
+    esac
+}
+
+
+fnHddInfo() {
+    local optUpdate="$1"
+
+    if [ "$optUpdate" == "--update" ]; then
+        optUpdate=1
+        shift
+    else
+        optUpdate=0
+    fi
+
+    local vhddDirPath=`"$binDirPath/path.resolve" "$1"`
+
+
+    if [ ! -f "$vhddDirPath/info.txt" ]; then
+        tmpErrMsg="[錯誤] 虛擬硬碟目錄未提供或不正確。"
+        echo -e "\e[01;31m${tmpErrMsg}\e[00m"
+        exit 1
+    fi
+
+
+    if [ $optUpdate -eq 1 ]; then
+        "$binDirPath/hdd_info_check" "$vhddDirPath"
+    fi
+
+    "$binDirPath/hdd_info" "$vhddDirPath"
+}
+
+
+fnMain "$@"
+
