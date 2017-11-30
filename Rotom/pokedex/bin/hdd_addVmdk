@@ -226,7 +226,7 @@ fnobjVmdkSample_numGrainSizeM=""
 fnobjSampleVhddInfo() {
     local chooseSize="$1"
 
-    local sourceFile size grainSizeM numGrainSizeM
+    local sourceFile size numGrainSizeM
 
     case $chooseSize in
         "0008" )
