@@ -68,6 +68,12 @@ fnMainHandle() {
     local startNum=$4
     local totalNum=$5
 
+    if [ $opt_simpleCheck -eq 1 ]; then
+        shift
+        echo $# "$vhddDirPath"
+        exit
+    fi
+
 
     local regexParseOption
     regexParseOption="^\([A-Za-z][A-Za-z0-9_]*\)\? \(0008\|0128\|0512\|4064\) "
@@ -77,12 +83,6 @@ fnMainHandle() {
         tmpErrMsg="[錯誤] 虛擬硬碟目錄未提供或不正確。"
         echo -e "\e[01;31m${tmpErrMsg}\e[00m"
         exit 1
-    fi
-
-    if [ $opt_simpleCheck -eq 1 ]; then
-        shift
-        echo $# "$vhddDirPath"
-        exit
     fi
 
     if [ ! -f "$vhddDirPath/.pokedex_hddInfo.tmp" ]; then
@@ -99,7 +99,7 @@ fnMainHandle() {
 
 
     local tmp
-    local totalGrainSizeM
+    local amount totalSize totalGrainSizeM
     local vhddInfo vhddInfoSummary txtVhddInfo
     local bisHasOriginVhddInfo=0
     local endNum
@@ -110,11 +110,14 @@ fnMainHandle() {
     vhddInfo=`       echo -e "$vhddInfo" | sed    "1d"`
     txtVhddInfo="$vhddInfo"
 
+    amount=`         echo "$vhddInfoSummary" | cut -d " " -f 2`
+    totalSize=`      echo "$vhddInfoSummary" | cut -d " " -f 4`
     totalGrainSizeM=`echo "$vhddInfoSummary" | cut -d " " -f 6`
     bisHasOriginVhddInfo=$totalGrainSizeM
 
-    if [ -z "`echo "$totalGrainSizeM" | grep "^\(0\|[1-9][0-9]*\)$"`" ]; then
-        tmpErrMsg="[錯誤] \".pokedex_hddInfo.tmp\" 文件的 \"totalGrainSizeM\" 不為數值。"
+    tmp="amount: \(0\|[1-9][0-9]*\) totalSize: \(0\|[1-9][0-9]*\) totalGrainSizeM: \(0\|[1-9][0-9]*\)"
+    if [ -z "`echo "$vhddInfoSummary" | grep "^$tmp$"`" ]; then
+        tmpErrMsg="[錯誤] \".pokedex_hddInfo.tmp\" 文件的概括資訊與期望不符。"
         echo -e "\e[01;31m${tmpErrMsg}\e[00m"
         exit 1
     fi
@@ -144,7 +147,9 @@ fnMainHandle() {
 
     if [ $opt_noConfirm -eq 0 ] && [ $bisHasOriginVhddInfo -ne 0 ]; then
         fnCheckExistFile "$vhddDirPath" $startNum $endNum "$txtVhddInfo"
-        totalGrainSizeM=$(( $totalGrainSizeM - $fnCheckExistFile_subtractionGrainSizeM ))
+        amount=$(( $amount - $fnCheckExistFile_subtractionAmount ))
+        totalSize=$(( $totalSize - $fnCheckExistFile_subtractionTotalSize ))
+        totalGrainSizeM=$(( $totalGrainSizeM - $fnCheckExistFile_subtractionTotalGrainSizeM ))
         txtVhddInfo="$fnCheckExistFile_vhddInfo"
     fi
 
@@ -153,14 +158,22 @@ fnMainHandle() {
         "$vhddDirPath" "$name" "$grainSizeM" $startNum $endNum \
         "`echo -e "$txtVhddInfo" | cut -d " " -f 1`"
 
-    if [ $rtnHandleCreateVhdd_addGrainSizeM -gt 0 ]; then
-        totalGrainSizeM=$(( $totalGrainSizeM + $rtnHandleCreateVhdd_addGrainSizeM ))
-        txtVhddInfo="$txtVhddInfo\n$rtnHandleCreateVhdd_addVhddInfo"
+    if [ $rtnHandleCreateVhdd_addTotalGrainSizeM -gt 0 ]; then
+        amount=$(( $amount + $rtnHandleCreateVhdd_addAmount ))
+        totalSize=$(( $totalSize + $rtnHandleCreateVhdd_addTotalSize ))
+        totalGrainSizeM=$(( $totalGrainSizeM + $rtnHandleCreateVhdd_addTotalGrainSizeM ))
+
+        if [ $bisHasOriginVhddInfo -eq 0 ]; then
+            txtVhddInfo="$rtnHandleCreateVhdd_addVhddInfo"
+        else
+            txtVhddInfo="$txtVhddInfo\n$rtnHandleCreateVhdd_addVhddInfo"
+        fi
+
         txtVhddInfo=`echo -e "$txtVhddInfo" | sort -n`
     fi
 
 
-    tmp=`echo "$vhddInfoSummary" | cut -d " " -f 1,2,3,4,5`" $totalGrainSizeM"
+    tmp="amount: $amount totalSize: $totalSize totalGrainSizeM: $totalGrainSizeM"
     echo -e "$txtVhddInfo" | sed "1i $tmp" > "$vhddDirPath/.pokedex_hddInfo.tmp"
     fnRemindUpdateInfo "$vhddDirPath"
     fnGetVmdkInterface $totalGrainSizeM "`echo -e "$txtVhddInfo" | cut -d " " -f 9-`"
@@ -177,7 +190,9 @@ fnRemindUpdateInfo() {
     fi
 }
 
-fnCheckExistFile_subtractionGrainSizeM=0
+fnCheckExistFile_subtractionAmount=0
+fnCheckExistFile_subtractionTotalSize=0
+fnCheckExistFile_subtractionTotalGrainSizeM=0
 fnCheckExistFile_vhddInfo=""
 fnCheckExistFile() {
     local vhddDirPath="$1"
@@ -186,10 +201,12 @@ fnCheckExistFile() {
     local vhddInfo="$4"
 
     local val
-    local lineNumber grainSizeM fileName
+    local lineNumber size numGrainSizeM fileName
     local warnList=()
     local vhddNumberList=`echo -e "$vhddInfo" | cut -d " " -f 1`
-    local subtractionGrainSizeM=0
+    local amount=0
+    local totalSize=0
+    local totalGrainSizeM=0
 
     for val in `seq $startNum $endNum`
     do
@@ -205,18 +222,23 @@ fnCheckExistFile() {
         if [ "`"$binDirPath/prompt" rtnAnswer`" == "Yes" ]; then
             for val in ${warnList[@]}
             do
-                lineNumber=`echo -e "$vhddInfo" | grep -n "^$val" | cut -d ":" -f 1`
-                grainSizeM=`echo -e "$vhddInfo" | grep    "^$val" | cut -d " " -f 6`
-                fileName=`  echo -e "$vhddInfo" | grep    "^$val" | cut -d " " -f 8`
+                lineNumber=`   echo -e "$vhddInfo" | grep -n "^$val" | cut -d ":" -f 1`
+                size=`         echo -e "$vhddInfo" | grep    "^$val" | cut -d " " -f 4`
+                numGrainSizeM=`echo -e "$vhddInfo" | grep    "^$val" | cut -d " " -f 6`
+                fileName=`     echo -e "$vhddInfo" | grep    "^$val" | cut -d " " -f 8`
 
-                subtractionGrainSizeM=$(( $subtractionGrainSizeM + $grainSizeM ))
+                amount=$(( $amount + 1 ))
+                totalSize=$(( $totalSize + $size ))
+                totalGrainSizeM=$(( $totalGrainSizeM + $numGrainSizeM ))
                 vhddInfo=`echo -e "$vhddInfo" | sed "${lineNumber}d"`
                 rm "$vhddDirPath/vHDD/$fileName"
             done
         fi
     fi
 
-    fnCheckExistFile_subtractionGrainSizeM=$subtractionGrainSizeM
+    fnCheckExistFile_subtractionAmount=$amount
+    fnCheckExistFile_subtractionTotalSize=$totalSize
+    fnCheckExistFile_subtractionTotalGrainSizeM=$totalGrainSizeM
     fnCheckExistFile_vhddInfo="$vhddInfo"
 }
 
@@ -264,7 +286,9 @@ fnCopyVmdk() {
     if [ ! -e "$targetName" ]; then fnCopyVmdk "$source" "$targetName"; fi
 }
 
-rtnHandleCreateVhdd_addGrainSizeM=0
+rtnHandleCreateVhdd_addAmount=0
+rtnHandleCreateVhdd_addTotalSize=0
+rtnHandleCreateVhdd_addTotalGrainSizeM=0
 rtnHandleCreateVhdd_addVhddInfo=""
 fnHandleCreateVhdd() {
     local vhddDirPath="$1"
@@ -280,6 +304,8 @@ fnHandleCreateVhdd() {
     local joinName grainSource
     local number numNumber size numGrainSizeM grainSector fileName interfaceInfo
     local vhddDirName=`basename "$vhddDirPath"`
+    local amount=0
+    local totalSize=0
     local totalGrainSizeM=0
     local addVhddInfo=""
 
@@ -313,6 +339,8 @@ fnHandleCreateVhdd() {
 
         fnCopyVmdk "$libDirPath/$grainSource" "$vhddDirPath/vHDD/$fileName"
 
+        amount=$(( $amount + 1 ))
+        totalSize=$(( $totalSize + $size ))
         totalGrainSizeM=$(( $totalGrainSizeM + $numGrainSizeM ))
 
         tmp="$number $numNumber $name $size $grainSizeM $numGrainSizeM $grainSector $fileName $interfaceInfo"
@@ -326,7 +354,9 @@ fnHandleCreateVhdd() {
         "$loopA"
 
 
-    rtnHandleCreateVhdd_addGrainSizeM="$totalGrainSizeM"
+    rtnHandleCreateVhdd_addAmount=$amount
+    rtnHandleCreateVhdd_addTotalSize=$totalSize
+    rtnHandleCreateVhdd_addTotalGrainSizeM=$totalGrainSizeM
     rtnHandleCreateVhdd_addVhddInfo=`echo -e "$addVhddInfo" | sed "1d"`
 }
 
