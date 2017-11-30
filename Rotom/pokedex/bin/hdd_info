@@ -90,7 +90,7 @@ fnMainHandle() {
     txtVhddInfoSummary="amount: $amount, totalSize: $totalSize, totalGrainSize: $totalGrainSizeM"
 
 
-    txtVhddInfo=`echo -e "$vhddInfo" | cut -d " " -f 2,3,4,6`
+    txtVhddInfo=`echo -e "$vhddInfo" | cut -d " " -f 2,3,4,5,6`
     fnHandleVhddInfo "$txtVhddInfo"
     txtVhddInfo="$rtnHandleVhddInfo"
 
@@ -102,7 +102,7 @@ fnMainHandle() {
     tmp="$tmp\n"`echo -e "$txtVhddInfo" | cut -d " " -f 9`
     lenSize=`echo -e "$tmp" | wc -L`
 
-    tmp="%-${lenName}s   %${lenSize}s   [%${lenNum}s-%${lenNum}s/%${lenNum}s]"
+    tmp="%-${lenName}s (%s)  %${lenSize}s   [%${lenNum}s-%${lenNum}s/%${lenNum}s]"
     tmp="$tmp   [ %${lenGrainSector}s - %${lenGrainSector}s / %${lenGrainSector}s (%${lenSize}s) ]\n"
     txtVhddInfo=`printf "$tmp" $txtVhddInfo | sed "1i $txtVhddInfoSummary\n"`
 
@@ -116,8 +116,9 @@ rtnHandleVhddInfo=""
 fnHandleVhddInfo() {
     local txtVhddInfo="$1"
 
-    local numNumber name size grainSizeM
+    local numNumber name size grainSizeM numGrainSizeM prevNumGrainSizeM
     local recordName=""
+    local recordGrainSizeM=0
     local recordSize=0
     local recordStartNum=0
     local recordEndNum=0
@@ -128,41 +129,49 @@ fnHandleVhddInfo() {
     local lenTxtVhddInfo=`echo -e "$txtVhddInfo" | wc -l`
 
     val=`echo -e "$txtVhddInfo" | sed -n "1p"`
-    recordStartNum=`echo "$val" | cut -d " " -f 1`
-    recordName=`    echo "$val" | cut -d " " -f 2`
+    recordStartNum=`   echo "$val" | cut -d " " -f 1`
+    recordName=`       echo "$val" | cut -d " " -f 2`
+    recordGrainSizeM=` echo "$val" | cut -d " " -f 4`
+    prevNumGrainSizeM=`echo "$val" | cut -d " " -f 5`
 
     for idx in `seq 1 $lenTxtVhddInfo`
     do
         "$binDirPath/runingDot" $idx
 
         val=`echo -e "$txtVhddInfo" | sed -n "${idx}p"`
-        numNumber=` echo "$val" | cut -d " " -f 1`
-        name=`      echo "$val" | cut -d " " -f 2`
-        size=`      echo "$val" | cut -d " " -f 3`
-        grainSizeM=`echo "$val" | cut -d " " -f 4`
+        numNumber=`    echo "$val" | cut -d " " -f 1`
+        name=`         echo "$val" | cut -d " " -f 2`
+        size=`         echo "$val" | cut -d " " -f 3`
+        grainSizeM=`   echo "$val" | cut -d " " -f 4`
+        numGrainSizeM=`echo "$val" | cut -d " " -f 5`
 
-        if [ "$name" == "$recordName" ]; then
+        if [ "$name" == "$recordName" ] \
+            && [ $numGrainSizeM -eq $prevNumGrainSizeM ] \
+            && [ $numNumber -eq $(( $recordEndNum + 1 )) ]
+        then
             recordSize=$(( $recordSize + $size ))
             recordEndNum=$numNumber
-            recordEndGrainSizeM=$(( $recordEndGrainSizeM + $grainSizeM ))
+            recordEndGrainSizeM=$(( $recordEndGrainSizeM + $numGrainSizeM ))
         else
             fnResolveVhddInfo_record \
-                $recordName $recordSize \
+                $recordName $recordGrainSizeM $recordSize \
                 $recordStartNum $recordEndNum \
                 $recordStartGrainSizeM $recordEndGrainSizeM
 
+            prevNumGrainSizeM=$numGrainSizeM
             recordName="$name"
+            recordGrainSizeM=$grainSizeM
             recordStartNum=$numNumber
             recordStartGrainSizeM=$recordEndGrainSizeM
 
             recordSize=$size
             recordEndNum=$numNumber
-            recordEndGrainSizeM=$(( $recordEndGrainSizeM + $grainSizeM ))
+            recordEndGrainSizeM=$(( $recordEndGrainSizeM + $numGrainSizeM ))
         fi
     done
 
     fnResolveVhddInfo_record \
-        $recordName $recordSize \
+        $recordName $recordGrainSizeM $recordSize \
         $recordStartNum $recordEndNum \
         $recordStartGrainSizeM $recordEndGrainSizeM
 
@@ -171,18 +180,20 @@ fnHandleVhddInfo() {
 }
 fnResolveVhddInfo_record() {
     local recordName="$1"
-    local recordSize=$2
-    local recordStartNum=$3
-    local recordEndNum=$4
-    local recordStartGrainSizeM=$5
-    local recordEndGrainSizeM=$6
+    local recordGrainSizeM=$2
+    local recordSize=$3
+    local recordStartNum=$4
+    local recordEndNum=$5
+    local recordStartGrainSizeM=$6
+    local recordEndGrainSizeM=$7
 
     local totalGrainSizeM=$(( $recordEndGrainSizeM - $recordStartGrainSizeM ))
     local sizeUnit=`"$binDirPath/sizeUnit" $recordSize`
     local totalGrainSizeUnit=`"$binDirPath/sizeUnit" $(( $totalGrainSizeM * 1024 * 1024 ))`
 
-    rtnHandleVhddInfo="$rtnHandleVhddInfo\n`printf "%s %s %s %s %s %s %s %s %s" \
+    rtnHandleVhddInfo="$rtnHandleVhddInfo\n`printf "%s %s %s %s %s %s %s %s %s %s" \
         "$recordName" \
+         $recordGrainSizeM \
          $sizeUnit \
          $recordStartNum \
          $recordEndNum \
