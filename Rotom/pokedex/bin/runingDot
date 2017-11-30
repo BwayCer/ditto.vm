@@ -1,0 +1,20 @@
+#!/bin/bash
+# 運行中 ......
+
+runingDot=$(( $1 % 13 ))
+
+if   [ $runingDot -eq  0 ]; then printf "      \r      \r";
+elif [ $runingDot -eq  1 ]; then printf "      \r.     \r";
+elif [ $runingDot -eq  2 ]; then printf "      \r..    \r";
+elif [ $runingDot -eq  3 ]; then printf "      \r...   \r";
+elif [ $runingDot -eq  4 ]; then printf "      \r....  \r";
+elif [ $runingDot -eq  5 ]; then printf "      \r..... \r";
+elif [ $runingDot -eq  6 ]; then printf "      \r......\r";
+elif [ $runingDot -eq  7 ]; then printf "      \r .....\r";
+elif [ $runingDot -eq  8 ]; then printf "      \r  ....\r";
+elif [ $runingDot -eq  9 ]; then printf "      \r   ...\r";
+elif [ $runingDot -eq 10 ]; then printf "      \r    ..\r";
+elif [ $runingDot -eq 11 ]; then printf "      \r    ..\r";
+elif [ $runingDot -eq 12 ]; then printf "      \r     .\r";
+fi
+
