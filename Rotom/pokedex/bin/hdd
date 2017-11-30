@@ -24,7 +24,10 @@ fnHddAdd() {
     local simpleCheck
 
     simpleCheck=`"$binDirPath/hdd_addVmdk" --simpleCheck "$@"`
-    if [ $? -eq 1 ]; then exit 1; fi
+    if [ $? -eq 1 ]; then
+        echo "$simpleCheck"
+        exit 1;
+    fi
 
     local lenVhddArgu=`echo "$simpleCheck" | cut -d " " -f 1`
     local vhddDirPath=`echo "$simpleCheck" | cut -d " " -f 2-`

@@ -15,7 +15,7 @@ fnMain() {
         echo -e "\e[01;31m${tmpErrMsg}\e[00m"
         exit 1
     elif [ -z "`ls "$vhddDirPath/vHDD/"`" ]; then
-        echo -e "amount: 0 totalSize: 0 totalGrainSizeM: 0" > "$vhddDirPath/.info.tmp"
+        echo -e "amount: 0 totalSize: 0 totalGrainSizeM: 0" > "$vhddDirPath/.pokedex_hddInfo.tmp"
         exit
     fi
 
@@ -76,7 +76,7 @@ fnMain() {
     done
 
     tmp="amount: $amount totalSize: $totalSize totalGrainSizeM: $totalGrainSizeM"
-    echo -e "$vmdkInfo" | sed "1c $tmp" > "$vhddDirPath/.info.tmp"
+    echo -e "$vmdkInfo" | sed "1c $tmp" > "$vhddDirPath/.pokedex_hddInfo.tmp"
 }
 
 

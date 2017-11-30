@@ -79,16 +79,16 @@ fnMainHandle() {
         exit 1
     fi
 
-    if [ ! -f "$vhddDirPath/.info.tmp" ]; then
-        tmpErrMsg="[錯誤] 缺少文件。 (\".info.tmp\")"
-        echo -e "\e[01;31m${tmpErrMsg}\e[00m"
-        exit 1
-    fi
-
     if [ $opt_simpleCheck -eq 1 ]; then
         shift
         echo $# "$vhddDirPath"
         exit
+    fi
+
+    if [ ! -f "$vhddDirPath/.pokedex_hddInfo.tmp" ]; then
+        tmpErrMsg="[錯誤] 缺少文件。 (\".pokedex_hddInfo.tmp\")"
+        echo -e "\e[01;31m${tmpErrMsg}\e[00m"
+        exit 1
     fi
 
     if [ -z "`echo "$name $grainSizeM $startNum $totalNum" | grep "$regexParseOption"`" ]; then
@@ -105,7 +105,7 @@ fnMainHandle() {
     local endNum
 
 
-    vhddInfo=`cat "$vhddDirPath/.info.tmp"`
+    vhddInfo=`cat "$vhddDirPath/.pokedex_hddInfo.tmp"`
     vhddInfoSummary=`echo -e "$vhddInfo" | sed -n "1p"`
     vhddInfo=`       echo -e "$vhddInfo" | sed    "1d"`
     txtVhddInfo="$vhddInfo"
@@ -114,7 +114,7 @@ fnMainHandle() {
     bisHasOriginVhddInfo=$totalGrainSizeM
 
     if [ -z "`echo "$totalGrainSizeM" | grep "^\(0\|[1-9][0-9]*\)$"`" ]; then
-        tmpErrMsg="[錯誤] \".info.tmp\" 文件的 \"totalGrainSizeM\" 不為數值。"
+        tmpErrMsg="[錯誤] \".pokedex_hddInfo.tmp\" 文件的 \"totalGrainSizeM\" 不為數值。"
         echo -e "\e[01;31m${tmpErrMsg}\e[00m"
         exit 1
     fi
@@ -161,7 +161,7 @@ fnMainHandle() {
 
 
     tmp=`echo "$vhddInfoSummary" | cut -d " " -f 1,2,3,4,5`" $totalGrainSizeM"
-    echo -e "$txtVhddInfo" | sed "1i $tmp" > "$vhddDirPath/.info.tmp"
+    echo -e "$txtVhddInfo" | sed "1i $tmp" > "$vhddDirPath/.pokedex_hddInfo.tmp"
     fnRemindUpdateInfo "$vhddDirPath"
     fnGetVmdkInterface $totalGrainSizeM "`echo -e "$txtVhddInfo" | cut -d " " -f 9-`"
     echo -e "$rtnGetVmdkInterface" > "$vhddDirPath/interface.vmdk"

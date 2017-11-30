@@ -57,7 +57,7 @@ fnMainHandle() {
     fi
 
 
-    if [ $opt_update -eq 1 ] || [ ! -f "$vhddDirPath/.info.tmp" ]; then
+    if [ $opt_update -eq 1 ] || [ ! -f "$vhddDirPath/.pokedex_hddInfo.tmp" ]; then
         "$binDirPath/hdd_info_check" "$vhddDirPath"
         if [ $? -eq 1 ]; then exit 1; fi
     elif [ -n "`cat "$vhddDirPath/info.txt"`" ] && [ -z "`cat "$vhddDirPath/info.txt" | sed -n "1p" | grep "^# overdue"`" ]; then
@@ -67,11 +67,11 @@ fnMainHandle() {
 
 
     local tmp
-    local amount totalSize totalGrainSize
+    local amount totalSize totalGrainSizeM
     local lenName lenSize lenNum lenGrainSector
     local vhddInfo vhddInfoSummary txtVhddInfo txtVhddInfoSummary
 
-    vhddInfo=`cat "$vhddDirPath/.info.tmp"`
+    vhddInfo=`cat "$vhddDirPath/.pokedex_hddInfo.tmp"`
 
     if [ -z "$vhddInfo" ]; then
         cat /dev/null > "$vhddDirPath/info.txt"
@@ -82,12 +82,12 @@ fnMainHandle() {
     vhddInfo=`       echo -e "$vhddInfo" | sed    "1d"`
 
 
-    amount=`        echo "$vhddInfoSummary" | cut -d " " -f 2`
-    totalSize=`     echo "$vhddInfoSummary" | cut -d " " -f 4`
-    totalGrainSize=`echo "$vhddInfoSummary" | cut -d " " -f 6`
-    totalSize=`     "$binDirPath/sizeUnit" $totalSize`
-    totalGrainSize=`"$binDirPath/sizeUnit" $(( $totalGrainSize * 1024 * 1024 ))`
-    txtVhddInfoSummary="amount: $amount, totalSize: $totalSize, totalGrainSize: $totalGrainSize"
+    amount=`         echo "$vhddInfoSummary" | cut -d " " -f 2`
+    totalSize=`      echo "$vhddInfoSummary" | cut -d " " -f 4`
+    totalGrainSizeM=`echo "$vhddInfoSummary" | cut -d " " -f 6`
+    totalSize=`      "$binDirPath/sizeUnit" $totalSize`
+    totalGrainSizeM=`"$binDirPath/sizeUnit" $(( $totalGrainSizeM * 1024 * 1024 ))`
+    txtVhddInfoSummary="amount: $amount, totalSize: $totalSize, totalGrainSize: $totalGrainSizeM"
 
 
     txtVhddInfo=`echo -e "$vhddInfo" | cut -d " " -f 2,3,4,6`
