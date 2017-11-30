@@ -57,12 +57,10 @@ fnMainHandle() {
     fi
 
 
-    if [ $opt_update -eq 1 ] || [ ! -f "$vhddDirPath/.info.tmp" ] \
-        || [ -n "`cat "$vhddDirPath/info.txt" | sed -n "1p" | grep "^# overdue"`" ]
-    then
+    if [ $opt_update -eq 1 ] || [ ! -f "$vhddDirPath/.info.tmp" ]; then
         "$binDirPath/hdd_info_check" "$vhddDirPath"
         if [ $? -eq 1 ]; then exit 1; fi
-    elif [ -n "`cat "$vhddDirPath/info.txt" | sed -n "3p"`" ]; then
+    elif [ -n "`cat "$vhddDirPath/info.txt"`" ] && [ -z "`cat "$vhddDirPath/info.txt" | sed -n "1p" | grep "^# overdue"`" ]; then
         cat "$vhddDirPath/info.txt"
         exit
     fi

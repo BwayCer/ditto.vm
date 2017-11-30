@@ -15,7 +15,7 @@ fnMain() {
         echo -e "\e[01;31m${tmpErrMsg}\e[00m"
         exit 1
     elif [ -z "`ls "$vhddDirPath/vHDD/"`" ]; then
-        cat /dev/null > "$vhddDirPath/.info.tmp"
+        echo -e "amount: 0 totalSize: 0 totalGrainSizeM: 0" > "$vhddDirPath/.info.tmp"
         exit
     fi
 
