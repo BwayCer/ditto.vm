@@ -14,22 +14,21 @@ fnMain() {
     local vhddDirPath=`"$binDirPath/path.resolve" "$1"`
 
 
-    if [ -n "`cat "$vhddDirPath/info.txt" | sed -n "1p" | grep "^# overdue"`" ]; then
+    if [ ! -f "$vhddDirPath/.info.tmp" ] \
+        || [ -n "`cat "$vhddDirPath/info.txt" | sed -n "1p" | grep "^# overdue"`" ]
+    then
         "$binDirPath/hdd_info_check" "$vhddDirPath"
         if [ $? -eq 1 ]; then exit 1; fi
     elif [ -n "`cat "$vhddDirPath/info.txt" | sed -n "3p"`" ]; then
         cat "$vhddDirPath/info.txt"
         exit
-    elif [ ! -f "$vhddDirPath/.info.tmp" ]; then
-        "$binDirPath/hdd_info_check" "$vhddDirPath"
-        if [ $? -eq 1 ]; then exit 1; fi
     fi
 
 
     local tmp
-    local vhddInfo vhddInfoSummary txtVhddInfo txtVhddInfoSummary
     local amount totalSize totalGrainSize
     local lenName lenSize lenNum lenGrainSector
+    local vhddInfo vhddInfoSummary txtVhddInfo txtVhddInfoSummary
 
     vhddInfo=`cat "$vhddDirPath/.info.tmp"`
 
@@ -42,8 +41,8 @@ fnMain() {
     vhddInfo=`       echo -e "$vhddInfo" | sed    "1d"`
 
 
-    amount=`         echo "$vhddInfoSummary" | cut -d " " -f 2`
-    totalSize=`      echo "$vhddInfoSummary" | cut -d " " -f 4`
+    amount=`        echo "$vhddInfoSummary" | cut -d " " -f 2`
+    totalSize=`     echo "$vhddInfoSummary" | cut -d " " -f 4`
     totalGrainSize=`echo "$vhddInfoSummary" | cut -d " " -f 6`
     totalSize=`     "$binDirPath/sizeUnit" $totalSize`
     totalGrainSize=`"$binDirPath/sizeUnit" $(( $totalGrainSize * 1024 * 1024 ))`
@@ -54,9 +53,8 @@ fnMain() {
     fnHandleVhddInfo "$txtVhddInfo"
     txtVhddInfo="$rtnHandleVhddInfo"
 
-
-    lenName=`      echo -e "$txtVhddInfo" | cut -d " " -f 1 | wc -L`
-    lenNum=`    echo -e "$txtVhddInfo" | cut -d " " -f 4 | wc -L`
+    lenName=`       echo -e "$txtVhddInfo" | cut -d " " -f 1 | wc -L`
+    lenNum=`        echo -e "$txtVhddInfo" | cut -d " " -f 4 | wc -L`
     lenGrainSector=`echo -e "$txtVhddInfo" | cut -d " " -f 7 | wc -L`
 
     tmp=`        echo -e "$txtVhddInfo" | cut -d " " -f 2`
