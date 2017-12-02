@@ -1,0 +1,36 @@
+#!/bin/bash
+# 腳本轉接
+
+
+originalPath="http://example.com/project"
+originalDirName="putThrough.projectName.tmp"
+__dirname=`dirname $0`
+
+if [ ! -f "$0" ] || [ "`cat "$0" | sed -n "2p"`" != "# 腳本轉接" ]; then
+    if [ ! -d "$originalDirName" ]; then
+        mkdir "$originalDirName"
+    fi
+    if [ ! -f "$originalDirName/putThrough" ]; then
+        curl -L "$originalPath" > $originalDirName/putThrough
+        chmod 755 $originalDirName/putThrough
+    fi
+    exec sh $originalDirName/putThrough
+    exit
+elif [ "`basename "$__dirname"`" != "$originalDirName" ]; then
+    mkdir "$originalDirName"
+    mv "$0" $originalDirName/putThrough
+    exec sh $originalDirName/putThrough
+    exit
+fi
+
+
+binDirPath="$__dirname"
+
+
+fnMain() {
+    echo "腳本轉接： 成功"
+}
+
+
+fnMain "$@"
+
