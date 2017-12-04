@@ -29,9 +29,12 @@ fnHddAdd() {
         exit 1;
     fi
 
+    local tmp txtOptArgu
     local lenVhddArgu=`echo "$simpleCheck" | cut -d " " -f 1`
     local vhddDirPath=`echo "$simpleCheck" | cut -d " " -f 2-`
-    local txtOptArgu=`echo "$@" | sed "s/\(\(.*\) \)\?$vhddDirPath.*/\1/"`
+
+    tmp=`echo "$vhddDirPath" | sed 's/\(\^\|\\\$\|\[\|\]\|\.\|\*\|\/\|\\\\\)/\\\\\\1/g'`
+    txtOptArgu=`echo "$@" | sed "s/\(\(.*\) \)\?$tmp.*/\1/"`
 
     shift $(( $# - $lenVhddArgu ))
 
