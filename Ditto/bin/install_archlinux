@@ -6,6 +6,7 @@ __dirname=`dirname $0`
 binDirPath="$__dirname"
 
 
+opt_logfile=""
 opt_exec=()
 opt_chroot=()
 fnMain() {
@@ -29,6 +30,10 @@ fnMain() {
         fi
 
         case "$opt" in
+            "--logfile" )
+                opt_logfile=$val
+                shift 2
+                ;;
             "--exec" )
                 shift
                 for tmp in "$@"
@@ -46,7 +51,7 @@ fnMain() {
                 shift $#
                 ;;
             * )
-                echo "[錯誤] 非法選項 $opt"
+                fnRecordHistory echo "[錯誤] 非法選項 $opt"
                 exit 1
                 ;;
         esac
@@ -58,6 +63,11 @@ fnMain() {
 fnMainHandle() {
     local method execFunc
 
+    if [ -n "$opt_logfile" ]; then
+        fnRecordHistory_logfile=$opt_logfile
+        fnArchChroot_logfile=$opt_logfile
+    fi
+
     if [ ${#opt_exec[@]} -ne 0 ]; then
         method="exec"
         execFunc="${opt_exec[0]}"
@@ -66,7 +76,7 @@ fnMainHandle() {
         execFunc="${opt_chroot[1]}"
     else
         tmpErrMsg='[錯誤] 請再次檢查參數。("--exec" 或 "--chroot")'
-        echo -e "\e[01;31m${tmpErrMsg}\e[00m"
+        fnRecordHistory echo -e "\e[01;31m${tmpErrMsg}\e[00m"
         exit 1
     fi
 
@@ -85,6 +95,41 @@ fnMainHandle() {
 }
 
 
+fnRecordHistory() {
+    fnRecordHistory_output i -- $@
+
+    "$@"
+    if [ $? -eq 0 ]; then
+        fnRecordHistory_output i ok $@
+    else
+        fnRecordHistory_output i no $@
+    fi
+}
+fnRecordHistory_logfile=""
+fnRecordHistory_prefix="[`basename $0`]"
+fnRecordHistory_output() {
+    local method=$1; shift
+    local state=$1; shift
+
+    local lineNumber txt
+
+    if [ -n "$state" ]; then
+        txt=`date "+[%Y-%m-%d %H:%M:%S]"`" $fnRecordHistory_prefix $state: \$ $@"
+    fi
+
+    echo "$txt"
+
+    if [ -n "$fnRecordHistory_logfile" ]; then
+        if [ "$method" == "i" ]; then
+            echo "$txt" >> "$fnRecordHistory_logfile"
+        elif [ "$method" == "c" ]; then
+            lineNumber=`cat "$fnRecordHistory_logfile" | wc -l`
+            sed -i "${lineNumber}${method} $txt" "$fnRecordHistory_logfile"
+        fi
+    fi
+}
+
+
 rtnAllowFunc=""
 fnAllowFunc() {
     local choCmd="$1"
@@ -97,7 +142,7 @@ fnAllowFunc() {
 
     if [ -z "$choCmd" ]; then
         tmpErrMsg="[錯誤] 請填入欲執行的功能。"
-        echo -e "\e[01;31m${tmpErrMsg}\e[00m"
+        fnRecordHistory echo -e "\e[01;31m${tmpErrMsg}\e[00m"
         exit 1
     elif [ -n "`echo "$choCmd" | grep "[^ ]\+"`" ] \
         && [ -n "`echo "$allowFunc" | grep -i " fn$choCmd "`" ]
@@ -105,7 +150,7 @@ fnAllowFunc() {
         execFunc=`echo "$allowFunc" | sed "s/^.* \(fn$choCmd\) .*$/\1/i"`
     else
         tmpErrMsg="[錯誤] 找不到欲執行的功能。"
-        echo -e "\e[01;31m${tmpErrMsg}\e[00m"
+        fnRecordHistory echo -e "\e[01;31m${tmpErrMsg}\e[00m"
         exit 1
     fi
 
@@ -118,11 +163,26 @@ fnArchChroot() {
 
     local isoRunDir=/root/isoRun.tmp
     local isoRunFile=$isoRunDir/`basename "$0"`
+    local isoLogFile=/root/isoLog.tmp
 
-    cp -r "$__dirname" "$mainMount/$isoRunDir"
-    echo "sh $isoRunFile --exec $runArgu" | arch-chroot "$mainMount"
-    rm -r "$mainMount/$isoRunDir"
+    fnRecordHistory cp -r "$__dirname" "$mainMount/$isoRunDir"
+    if [ -n "$fnArchChroot_logfile" ]; then
+        if [ -f "$mainMount/$isoLogFile" ]; then
+            fnRecordHistory rm "$mainMount/$isoLogFile"
+        fi
+        fnRecordHistory touch "$mainMount/$isoLogFile"
+        fnRecordHistory_output i txt \
+            "echo \"sh $isoRunFile --logfile $isoLogFile --exec $runArgu\" | arch-chroot \"$mainMount\""
+        echo "sh $isoRunFile --logfile $isoLogFile --exec $runArgu" | arch-chroot "$mainMount"
+        fnRecordHistory_output i txt "cat \"$mainMount/$isoLogFile\" >> \"$fnArchChroot_logfile\""
+        cat "$mainMount/$isoLogFile" >> "$fnArchChroot_logfile"
+        fnRecordHistory rm "$mainMount/$isoLogFile"
+    else
+        fnRecordHistory echo "sh $isoRunFile --exec $runArgu" | arch-chroot "$mainMount"
+    fi
+    fnRecordHistory rm -r "$mainMount/$isoRunDir"
 }
+fnArchChroot_logfile=""
 
 fnHandleGrain() {
     local val
@@ -140,7 +200,7 @@ fnHandleGrain() {
     do
         if [ -z "`echo "$val" | grep "$regexAllowArgu"`" ]; then
             tmpErrMsg="[錯誤] 不符合預期的參數。"
-            echo -e "\e[01;31m${tmpErrMsg}\e[00m"
+            fnRecordHistory echo -e "\e[01;31m${tmpErrMsg}\e[00m"
             exit 1
         fi
     done
@@ -158,20 +218,18 @@ fnHandleGrain() {
         fi
 
         if [ ! -d "$mountPathif" ]; then
-            mkdir "$mountPathif"
+            fnRecordHistory mkdir "$mountPathif"
         fi
-        $mkfsCmd "$grain"
-        mount "$grain" "$mountPathif"
+        fnRecordHistory $mkfsCmd "$grain"
+        fnRecordHistory mount "$grain" "$mountPathif"
     done
 }
 
 fnShowGrainInfo() {
     local device="$@"
 
-    echo "# lsblk -o NAME,SIZE,RA,RO,RM,RAND,PARTFLAGS,PARTLABEL,PARTUUID $device"
-    lsblk -o NAME,SIZE,RA,RO,RM,RAND,PARTFLAGS,PARTLABEL,PARTUUID $device
-    echo "# lsblk -o NAME,MOUNTPOINT,FSTYPE,LABEL,UUID $device"
-    lsblk -o NAME,MOUNTPOINT,FSTYPE,LABEL,UUID $device
+    fnRecordHistory lsblk -o NAME,SIZE,RA,RO,RM,RAND,PARTFLAGS,PARTLABEL,PARTUUID $device
+    fnRecordHistory lsblk -o NAME,MOUNTPOINT,FSTYPE,LABEL,UUID $device
 }
 
 fnHandleMirrorList() {
@@ -179,7 +237,7 @@ fnHandleMirrorList() {
 
     if [ ! -f "/etc/pacman.d/mirrorlist" ]; then
         tmpErrMsg='[錯誤] 鏡像表文件不存在。("/etc/pacman.d/mirrorlist")'
-        echo -e "\e[01;31m${tmpErrMsg}\e[00m"
+        fnRecordHistory echo -e "\e[01;31m${tmpErrMsg}\e[00m"
         exit 1
     fi
 
@@ -191,7 +249,7 @@ fnHandleMirrorList() {
 
     if [ -z "`echo -e "$serverList" | grep -i "$mirrorArea"`" ]; then
         tmpErrMsg="[錯誤] 找不到指定鏡像區域。"
-        echo -e "\e[01;31m${tmpErrMsg}\e[00m"
+        fnRecordHistory echo -e "\e[01;31m${tmpErrMsg}\e[00m"
         exit 1
     fi
 
@@ -203,9 +261,9 @@ fnHandleMirrorList() {
         newMirrorList=`echo -e "$newMirrorList" | sed "$lineNumber,$(( $lineNumber + 1 ))d"`
     done
 
+    fnRecordHistory_output i txt "echo -e \"$newMirrorList\" > /etc/pacman.d/mirrorlist"
     echo -e "$newMirrorList" > /etc/pacman.d/mirrorlist
-    echo "# cat /etc/pacman.d/mirrorlist"
-    cat /etc/pacman.d/mirrorlist
+    fnRecordHistory cat /etc/pacman.d/mirrorlist
 }
 
 fnBootProgram() {
@@ -215,11 +273,11 @@ fnBootProgram() {
 
     if [ -z "$mainMount" ]; then
         tmpErrMsg='[錯誤] 缺少跟目錄掛載位置參數。'
-        echo -e "\e[01;31m${tmpErrMsg}\e[00m"
+        fnRecordHistory echo -e "\e[01;31m${tmpErrMsg}\e[00m"
         exit 1
     elif [ -z "$rootGrain" ]; then
         tmpErrMsg='[錯誤] 缺少跟目錄硬碟位置參數。'
-        echo -e "\e[01;31m${tmpErrMsg}\e[00m"
+        fnRecordHistory echo -e "\e[01;31m${tmpErrMsg}\e[00m"
         exit 1
     fi
 
@@ -231,41 +289,41 @@ fnBootProgram() {
             ;;
         * )
             tmpErrMsg='[錯誤] 不符合預期的開機系統。'
-            echo -e "\e[01;31m${tmpErrMsg}\e[00m"
+            fnRecordHistory echo -e "\e[01;31m${tmpErrMsg}\e[00m"
             exit 1
             ;;
     esac
 
+    fnRecordHistory_output i txt "genfstab -U \"$mainMount\" >> \"$mainMount/etc/fstab\""
     genfstab -U "$mainMount" >> "$mainMount/etc/fstab"
-    echo "# cat \"$mainMount/etc/fstab\""
-    cat "$mainMount/etc/fstab"
-    fnArchChroot "$mainMount" $runArgu
+    fnRecordHistory cat "$mainMount/etc/fstab"
+    fnRecordHistory fnArchChroot "$mainMount" $runArgu
 }
 fnBootProgram_uefi() {
     local rootGrain="$1"
 
     if [ -z "$rootGrain" ]; then
         tmpErrMsg='[錯誤] 缺少跟目錄硬碟位置參數。'
-        echo -e "\e[01;31m${tmpErrMsg}\e[00m"
+        fnRecordHistory echo -e "\e[01;31m${tmpErrMsg}\e[00m"
         exit 1
     fi
 
     local bootMenu partuuid
 
-    mkinitcpio -p linux
-    bootctl install
+    fnRecordHistory mkinitcpio -p linux
+    fnRecordHistory bootctl install
+    fnRecordHistory_output i txt "echo -e \"default arch\ntimeout 3\" > /boot/loader/loader.conf"
     echo -e "default arch\ntimeout 3" > /boot/loader/loader.conf
-    echo "# cat /boot/loader/loader.conf"
-    cat /boot/loader/loader.conf
+    fnRecordHistory cat /boot/loader/loader.conf
 
     partuuid=`blkid -s PARTUUID $rootGrain | sed "s/.*PARTUUID=\"\([a-f0-9-]\+\)\"/\1/"`
     bootMenu=$bootMenu"title Archlinux\n"
     bootMenu=$bootMenu"linux /vmlinuz-linux\n"
     bootMenu=$bootMenu"initrd /initramfs-linux.img\n"
     bootMenu=$bootMenu"options root=PARTUUID=$partuuid rw"
+    fnRecordHistory_output i txt "echo -e \"$bootMenu\" > /boot/loader/entries/arch.conf"
     echo -e "$bootMenu" > /boot/loader/entries/arch.conf
-    echo "# cat /boot/loader/entries/arch.conf"
-    cat /boot/loader/entries/arch.conf
+    fnRecordHistory cat /boot/loader/entries/arch.conf
 }
 
 fnPacman() {
@@ -284,7 +342,7 @@ fnPacman() {
 
     if [ $tmp -ne 1 ] && [ -z "`echo "$pkgs" | grep "[A-Za-z0-9_-]\+"`" ]; then
         tmpErrMsg="[錯誤] 不符合預期的程式包參數。"
-        echo -e "\e[01;31m${tmpErrMsg}\e[00m"
+        fnRecordHistory echo -e "\e[01;31m${tmpErrMsg}\e[00m"
         exit 1
     fi
 
@@ -320,11 +378,11 @@ fnPacman() {
     fi
 
     if [ -n "$opt" ] && [ -n "$otherPkg" ]; then
-        pacman $opt --noconfirm $otherPkg
+        fnRecordHistory pacman $opt --noconfirm $otherPkg
     elif [ -z "$opt" ] && [ -n "$otherPkg" ]; then
-        pacman -S --noconfirm $otherPkg
+        fnRecordHistory pacman -S --noconfirm $otherPkg
     elif [ -n "`echo "$opt" | grep "^-Sy"`" ]; then
-        pacman $opt --noconfirm
+        fnRecordHistory pacman $opt --noconfirm
     fi
 }
 rtnAllowPkg_method=""
@@ -356,17 +414,17 @@ fnPacman_openssh() {
 
     if [ ! -f /etc/ssh/sshd_config ]; then
         tmpErrMsg="[錯誤] 找不到設定文件。"'("/etc/ssh/sshd_config")'
-        echo -e "\e[01;31m${tmpErrMsg}\e[00m"
+        fnRecordHistory echo -e "\e[01;31m${tmpErrMsg}\e[00m"
         exit 1
     fi
 
     if [ -z "`grep "^PasswordAuthentication no$" /etc/ssh/sshd_config`" ]; then
         lineNumber=`grep -n "^#PasswordAuthentication yes" /etc/ssh/sshd_config | cut -d ":" -f 1`
-        sed -i "$(( $lineNumber + 1 ))i PasswordAuthentication no" /etc/ssh/sshd_config
-        grep "PasswordAuthentication" /etc/ssh/sshd_config
+        fnRecordHistory sed -i "$(( $lineNumber + 1 ))i PasswordAuthentication no" /etc/ssh/sshd_config
+        fnRecordHistory grep "PasswordAuthentication" /etc/ssh/sshd_config
     fi
 
-    "$binDirPath/createVmPass"
+    fnRecordHistory "$binDirPath/createVmPass"
 }
 
 

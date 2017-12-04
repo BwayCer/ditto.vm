@@ -9,49 +9,86 @@ binDirPath="$__dirname"
 fnMain() {
     local tmp
 
-    sgdisk --zap-all --clear --mbrtogpt /dev/sda
-    sgdisk -n     1:16384:12599295  -t 1:8300 /dev/sda
-    sgdisk -n  2:12599296:13123583  -t 2:EF00 /dev/sda
-    sgdisk -n  3:13123584:15220735  -t 3:8300 /dev/sda
-    sgdisk -n  4:15220736:19415039  -t 4:8300 /dev/sda
-    sgdisk -n  5:19415040:31997951  -t 5:8300 /dev/sda
-    sgdisk -n  6:31997952:32522239  -t 6:8300 /dev/sda
-    sgdisk -n  7:32522240:32784383  -t 7:8300 /dev/sda
+    fnRecordHistory sgdisk --zap-all --clear --mbrtogpt /dev/sda
+    fnRecordHistory sgdisk -n     1:16384:12599295  -t 1:8300 /dev/sda
+    fnRecordHistory sgdisk -n  2:12599296:13123583  -t 2:EF00 /dev/sda
+    fnRecordHistory sgdisk -n  3:13123584:15220735  -t 3:8300 /dev/sda
+    fnRecordHistory sgdisk -n  4:15220736:19415039  -t 4:8300 /dev/sda
+    fnRecordHistory sgdisk -n  5:19415040:31997951  -t 5:8300 /dev/sda
+    fnRecordHistory sgdisk -n  6:31997952:32522239  -t 6:8300 /dev/sda
+    fnRecordHistory sgdisk -n  7:32522240:32784383  -t 7:8300 /dev/sda
 
-    sgdisk --zap-all --clear --mbrtogpt /dev/sdb
-    sgdisk -n     1:16384:4210687   -t 1:8300 /dev/sdb
-    sgdisk -n   2:4210688:16793599  -t 2:8300 /dev/sdb
-    sgdisk -n  3:16793600:23085055  -t 3:8300 /dev/sdb
-    sgdisk -n  4:23085056:27279359  -t 4:8300 /dev/sdb
+    fnRecordHistory sgdisk --zap-all --clear --mbrtogpt /dev/sdb
+    fnRecordHistory sgdisk -n     1:16384:4210687   -t 1:8300 /dev/sdb
+    fnRecordHistory sgdisk -n   2:4210688:16793599  -t 2:8300 /dev/sdb
+    fnRecordHistory sgdisk -n  3:16793600:23085055  -t 3:8300 /dev/sdb
+    fnRecordHistory sgdisk -n  4:23085056:27279359  -t 4:8300 /dev/sdb
 
-    "$binDirPath/install_archlinux" --exec handleGrain \
-        /dev/sda1:ext4:/mnt           \
-        /dev/sda2:vfat:/mnt/boot      \
-        /dev/sda3:ext4:/mnt/var/      \
-        /dev/sda4:ext4:/mnt/var/cache \
-        /dev/sda5:ext4:/mnt/var/lib   \
-        /dev/sda6:ext4:/mnt/var/log/  \
-        /dev/sda7:ext4:/mnt/root      \
-        /dev/sdb1:ext4:/mnt/home           \
-        /dev/sdb3:ext4:/mnt/var/lib/docker \
-        /dev/sdb2:ext4:/mnt/srv            \
-        /dev/sdb4:ext4:/mnt/var/www
+    fnRecordHistory "$binDirPath/install_archlinux" \
+        --logfile Lugia_os.log \
+        --exec handleGrain \
+            /dev/sda1:ext4:/mnt           \
+            /dev/sda2:vfat:/mnt/boot      \
+            /dev/sda3:ext4:/mnt/var/      \
+            /dev/sda4:ext4:/mnt/var/cache \
+            /dev/sda5:ext4:/mnt/var/lib   \
+            /dev/sda6:ext4:/mnt/var/log/  \
+            /dev/sda7:ext4:/mnt/root      \
+            /dev/sdb1:ext4:/mnt/home           \
+            /dev/sdb3:ext4:/mnt/var/lib/docker \
+            /dev/sdb2:ext4:/mnt/srv            \
+            /dev/sdb4:ext4:/mnt/var/www
 
     tmp=`ls /home/cachePacmanPkg-v4.*.tar`
     if [ -n "$tmp" ]; then
         tmp=`echo "$tmp" | sort -rn | sed -n "1p"`
-        tar -xvf "$tmp" -C /mnt/
+        fnRecordHistory tar -xvf "$tmp" -C /mnt/
     fi
 
-    "$binDirPath/install_archlinux" --exec showGrainInfo /dev/sda /dev/sdb
+    fnRecordHistory "$binDirPath/install_archlinux" --logfile Lugia_os.log --exec showGrainInfo /dev/sda /dev/sdb
 
-    "$binDirPath/install_archlinux" --exec handleMirrorList Taiwan
+    fnRecordHistory "$binDirPath/install_archlinux" --logfile Lugia_os.log --exec handleMirrorList Taiwan
 
-    pacstrap /mnt base bash-completion vim
+    fnRecordHistory pacstrap /mnt base bash-completion vim
 
-    "$binDirPath/install_archlinux" --exec bootprogram /mnt /dev/sda1 uefi
+    fnRecordHistory "$binDirPath/install_archlinux" --logfile Lugia_os.log --exec bootprogram /mnt /dev/sda1 uefi
 
-    "$binDirPath/install_archlinux" --chroot /mnt pacman openssh
+    fnRecordHistory "$binDirPath/install_archlinux" --logfile Lugia_os.log --chroot /mnt pacman openssh
+}
+
+
+fnRecordHistory() {
+    fnRecordHistory_output i -- $@
+
+    "$@"
+    if [ $? -eq 0 ]; then
+        fnRecordHistory_output i ok $@
+    else
+        fnRecordHistory_output i no $@
+    fi
+}
+fnRecordHistory_logfile="Lugia_os.log"
+fnRecordHistory_prefix="[`basename $0`]"
+fnRecordHistory_output() {
+    local method=$1; shift
+    local state=$1; shift
+
+    local lineNumber txt
+
+    if [ -n "$state" ]; then
+        txt=`date "+[%Y-%m-%d %H:%M:%S]"`" $fnRecordHistory_prefix $state: \$ $@"
+    fi
+
+    echo "$txt"
+
+    if [ -n "$fnRecordHistory_logfile" ]; then
+        if [ "$method" == "i" ]; then
+            echo "$txt" >> "$fnRecordHistory_logfile"
+        elif [ "$method" == "c" ]; then
+            lineNumber=`cat "$fnRecordHistory_logfile" | wc -l`
+            sed -i "${lineNumber}${method} $txt" "$fnRecordHistory_logfile"
+        fi
+    fi
 }
 
 
