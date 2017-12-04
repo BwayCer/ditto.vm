@@ -1,0 +1,204 @@
+#!/bin/bash
+# 腳本轉接
+
+
+originalPath="https://raw.githubusercontent.com/BwayCer/ditto.vm/Ditto/Ditto/bin/putThrough"
+originalDirName="putThrough.ditto.tmp"
+__dirname=`dirname $0`
+
+if [ ! -f "$0" ] || [ "`cat "$0" | sed -n "2p"`" != "# 腳本轉接" ]; then
+    if [ ! -d "$originalDirName" ]; then
+        mkdir "$originalDirName"
+    fi
+    if [ ! -f "$originalDirName/putThrough" ]; then
+        curl -L "$originalPath" > $originalDirName/putThrough
+        chmod 755 $originalDirName/putThrough
+    fi
+    exec sh $originalDirName/putThrough
+    exit
+elif [ "`basename "$__dirname"`" != "$originalDirName" ]; then
+    mkdir "$originalDirName"
+    mv "$0" $originalDirName/putThrough
+    exec sh $originalDirName/putThrough
+    exit
+fi
+
+
+binDirPath="$__dirname"
+
+github_bwaycer="https://raw.githubusercontent.com/BwayCer"
+github_bwaycer_dittoBin="$github_bwaycer/ditto.vm/Ditto/Ditto/bin"
+putThroughTable="
+* createVmPass $github_bwaycer_dittoBin/createVmPass
+# 洛奇亞
+* Lugia $github_bwaycer_dittoBin/Lugia_os
+  + createVmPass installArchlinux
+"
+addtionalTable="
+createVmPass $github_bwaycer_dittoBin/createVmPass
+installArchlinux $github_bwaycer_dittoBin/install_archlinux
+"
+
+
+fnMain() {
+    local tmp tmpTable
+    local loop len idx val
+    local table pickItem
+
+    loop=1
+    len=`echo -e "$putThroughTable" | wc -l`
+    for (( idx=1 ; idx <= $len ; idx++ ))
+    do
+        val=`echo -e "$putThroughTable" | sed -n "${idx}p"`
+
+        if [ -z "`echo "$val" | grep "^\*"`" ]; then continue; fi
+
+        val=`echo "$val" | sed "s/^\*/$idx $loop/"`
+
+        tmp=`echo "$val" | cut -d " " -f 4- | sed "s/ /%20/g"`
+        val=`echo "$val" | cut -d " " -f 1,2,3`" $tmp"
+
+        loop=$(( $loop + 1 ))
+        tmpTable="$tmpTable\n$val"
+    done
+
+    table=`echo -e "$tmpTable" | sed "1d"`
+    len=`echo "$table" | wc -l`
+
+    if [ -z "$table" ]; then
+        tmpErrMsg="[錯誤] 找不到可接通項目。"
+        echo -e "\e[01;31m${tmpErrMsg}\e[00m"
+        exit 1
+    elif [ $len -eq 1 ]; then
+        pickItem="$table"
+    else
+        fnAsk "$table"
+        pickItem="$rtnAsk"
+    fi
+
+    fnAddtional "$pickItem" "$putThroughTable" "$addtionalTable"
+    fnCurl "`echo "$pickItem" | cut -d " " -f 4`"
+    echo "$ sh $rtnCurl"
+    sh $rtnCurl
+}
+
+
+rtnAsk=""
+fnAsk() {
+    local table="$1"
+
+    local lenTable lenTableNumber lenTableName
+
+    lenTable=`echo -e "$table" | wc -l`
+    lenTableNumber=`echo -e "$table" | cut -d " " -f 2 | wc -L`
+    lenTableName=`  echo -e "$table" | cut -d " " -f 3 | wc -L`
+
+    echo -e "\n"
+    printf "\e[01;33m%${lenTableNumber}s\e[00m \e[01;33m%-${lenTableName}s\e[00m %s\n" \
+        `echo -e "$table" | cut -d " " -f 2,3,4`
+
+    printf "\e[$(( $lenTable + 1 ))A""請選擇接通項目： (ex: 1,2 or Name) \e[01;33m"
+    read val
+
+    printf "\e[00m\e[$(( $lenTable ))B"
+    for loop in `seq 1 $lenTable`; do printf "\e[A\e[K"; done
+
+    fnSearchItem 2 4 "$val" "$table"
+
+    if [ $? -eq 1 ]; then
+        fnSearchItemWarn "$val"
+        exit 1
+    fi
+
+    rtnAsk="$rtnSearchItem"
+}
+
+fnSearchItemWarn() {
+    local item="$1"
+
+    tmpErrMsg="[錯誤] 找不到接通項目。(\"$item\")"
+    echo -e "\e[01;31m${tmpErrMsg}\e[00m"
+}
+
+rtnSearchItem=""
+fnSearchItem() {
+    local column=$1
+    local exitColumn=$2
+    local searchVal="$3"
+    local table="$4"
+    local bisStart=$5
+
+    if [ $column -eq $exitColumn ]; then return 1; fi
+    if [ "$bisStart" != "1" ]; then rtnSearchItem=""; fi
+
+    local idx val lenTable ans
+
+    lenTable=`echo -e "$table" | wc -l`
+
+    for idx in `seq 1 $lenTable`
+    do
+        val=`echo -e "$table" | sed -n "${idx}p"`
+
+        if [ "`echo "$val" | cut -d " " -f $column`" == "$searchVal" ]; then
+            ans=$val
+            break
+        fi
+    done
+
+    if [ -n "$ans" ]; then
+        rtnSearchItem=$ans
+        fnSearchItem_start=0
+    else
+        fnSearchItem $(( $column + 1 )) $exitColumn "$searchVal" "$table" 1
+        if [ $? -eq 1 ]; then return 1; fi
+    fi
+}
+
+fnAddtional() {
+    local pickItem="$1"
+    local putThroughTable="$2"
+    local addtionalTable="$3"
+
+    local idx val
+    local regexAddtional addtional
+
+    idx=`echo "$pickItem" | cut -d " " -f 1`
+    regexAddtional="^  + \([A-Za-z0-9_ -]\+\)$"
+
+    while [ $idx ]
+    do
+        idx=$(( $idx + 1 ))
+        val=`echo -e "$putThroughTable" | sed -n "${idx}p"`
+
+        if [ -z "`echo "$val" | grep "$regexAddtional"`" ]; then
+            break
+        else
+            val=`echo "$val" | sed "s/$regexAddtional/\1/"`
+
+            for addtional in $val
+            do
+                fnSearchItem 1 2 "$addtional" "$addtionalTable"
+
+                if [ $? -eq 0 ]; then
+                    fnCurl "`echo "$rtnSearchItem" | cut -d " " -f 2`"
+                else
+                    fnSearchItemWarn "$addtional"
+                fi
+            done
+        fi
+    done
+}
+
+rtnCurl=""
+fnCurl() {
+    local url="$1"
+    local filePath="$binDirPath/`basename $url`"
+    echo "$ curl $url > $filePath"
+    curl $url > "$filePath"
+    chmod 755 $filePath
+    rtnCurl=$filePath
+}
+
+
+fnMain "$@"
+
