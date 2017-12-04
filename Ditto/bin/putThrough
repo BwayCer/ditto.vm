@@ -31,9 +31,10 @@ github_bwaycer_dittoBin="$github_bwaycer/ditto.vm/Ditto/Ditto/bin"
 putThroughTable="
 # 洛奇亞
 * Lugia $github_bwaycer_dittoBin/Lugia_os
-  + installArchlinux
+  + createVmPass installArchlinux
 "
 addtionalTable="
+createVmPass $github_bwaycer_dittoBin/createVmPass
 installArchlinux $github_bwaycer_dittoBin/install_archlinux
 "
 

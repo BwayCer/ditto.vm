@@ -336,7 +336,7 @@ fnAllowPkg() {
     local method=""
     local pkgName=""
 
-    allowPkg=$allowPkg""
+    allowPkg=$allowPkg" openssh "
 
     if [ -n "`echo "$allowPkg" | grep -i " $choPkg "`" ]; then
         method="func"
@@ -348,6 +348,25 @@ fnAllowPkg() {
 
     rtnAllowPkg_method="$method"
     rtnAllowPkg_pkgName="$pkgName"
+}
+fnPacman_openssh() {
+    local lineNumber
+
+    pacman -S --noconfirm openssh
+
+    if [ ! -f /etc/ssh/sshd_config ]; then
+        tmpErrMsg="[錯誤] 找不到設定文件。"'("/etc/ssh/sshd_config")'
+        echo -e "\e[01;31m${tmpErrMsg}\e[00m"
+        exit 1
+    fi
+
+    if [ -z "`grep "^PasswordAuthentication no$" /etc/ssh/sshd_config`" ]; then
+        lineNumber=`grep -n "^#PasswordAuthentication yes" /etc/ssh/sshd_config | cut -d ":" -f 1`
+        sed -i "$(( $lineNumber + 1 ))i PasswordAuthentication no" /etc/ssh/sshd_config
+        grep "PasswordAuthentication" /etc/ssh/sshd_config
+    fi
+
+    "$binDirPath/createVmPass"
 }
 
 

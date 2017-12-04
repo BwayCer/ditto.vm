@@ -50,6 +50,8 @@ fnMain() {
     pacstrap /mnt base bash-completion vim
 
     "$binDirPath/install_archlinux" --exec bootprogram /mnt /dev/sda1 uefi
+
+    "$binDirPath/install_archlinux" --chroot /mnt pacman openssh
 }
 
 
