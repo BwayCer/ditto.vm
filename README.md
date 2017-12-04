@@ -21,3 +21,36 @@
 * [Cygwin](https://www.cygwin.com/)
 * [VMware Workstation Player](https://www.vmware.com/products/player/playerpro-evaluation.html)
 
+
+
+## 創建虛擬硬碟
+
+
+**執行命令：**
+
+```
+./bin/pokedex
+```
+
+更多資訊請查看 [圖鑑](/Rotom/pokedex/README.md) 文件。
+
+
+
+## 虛擬機作業系統及環境安裝
+
+
+**執行命令：**
+
+```
+curl -L https://goo.gl/Hr1uQx | sh
+```
+
+
+
+### 相關文件
+
+
+* 主機文件
+  * [洛奇亞](/Ditto/Lugia.md)
+* [通用金鑰](/Rotom/vmpass.md)
+
