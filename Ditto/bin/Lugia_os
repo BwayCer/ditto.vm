@@ -1,0 +1,57 @@
+#!/bin/bash
+# 洛奇亞 作業系統安裝腳本
+
+
+__dirname=`dirname $0`
+binDirPath="$__dirname"
+
+
+fnMain() {
+    local tmp
+
+    sgdisk --zap-all --clear --mbrtogpt /dev/sda
+    sgdisk -n     1:16384:12599295  -t 1:8300 /dev/sda
+    sgdisk -n  2:12599296:13123583  -t 2:EF00 /dev/sda
+    sgdisk -n  3:13123584:15220735  -t 3:8300 /dev/sda
+    sgdisk -n  4:15220736:19415039  -t 4:8300 /dev/sda
+    sgdisk -n  5:19415040:31997951  -t 5:8300 /dev/sda
+    sgdisk -n  6:31997952:32522239  -t 6:8300 /dev/sda
+    sgdisk -n  7:32522240:32784383  -t 7:8300 /dev/sda
+
+    sgdisk --zap-all --clear --mbrtogpt /dev/sdb
+    sgdisk -n     1:16384:4210687   -t 1:8300 /dev/sdb
+    sgdisk -n   2:4210688:16793599  -t 2:8300 /dev/sdb
+    sgdisk -n  3:16793600:23085055  -t 3:8300 /dev/sdb
+    sgdisk -n  4:23085056:27279359  -t 4:8300 /dev/sdb
+
+    "$binDirPath/install_archlinux" --exec handleGrain \
+        /dev/sda1:ext4:/mnt           \
+        /dev/sda2:vfat:/mnt/boot      \
+        /dev/sda3:ext4:/mnt/var/      \
+        /dev/sda4:ext4:/mnt/var/cache \
+        /dev/sda5:ext4:/mnt/var/lib   \
+        /dev/sda6:ext4:/mnt/var/log/  \
+        /dev/sda7:ext4:/mnt/root      \
+        /dev/sdb1:ext4:/mnt/home           \
+        /dev/sdb3:ext4:/mnt/var/lib/docker \
+        /dev/sdb2:ext4:/mnt/srv            \
+        /dev/sdb4:ext4:/mnt/var/www
+
+    tmp=`ls /home/cachePacmanPkg-v4.*.tar`
+    if [ -n "$tmp" ]; then
+        tmp=`echo "$tmp" | sort -rn | sed -n "1p"`
+        tar -xvf "$tmp" -C /mnt/
+    fi
+
+    "$binDirPath/install_archlinux" --exec showGrainInfo /dev/sda /dev/sdb
+
+    "$binDirPath/install_archlinux" --exec handleMirrorList Taiwan
+
+    pacstrap /mnt base bash-completion vim
+
+    "$binDirPath/install_archlinux" --exec bootprogram /mnt /dev/sda1 uefi
+}
+
+
+fnMain "$@"
+

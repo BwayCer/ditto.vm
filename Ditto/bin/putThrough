@@ -29,8 +29,12 @@ binDirPath="$__dirname"
 github_bwaycer="https://raw.githubusercontent.com/BwayCer"
 github_bwaycer_dittoBin="$github_bwaycer/ditto.vm/Ditto/Ditto/bin"
 putThroughTable="
+# 洛奇亞
+* Lugia $github_bwaycer_dittoBin/Lugia_os
+  + installArchlinux
 "
 addtionalTable="
+installArchlinux $github_bwaycer_dittoBin/install_archlinux
 "
 
 
