@@ -258,7 +258,7 @@ fnBootProgram_uefi() {
     echo "# cat /boot/loader/loader.conf"
     cat /boot/loader/loader.conf
 
-    partuuid=`lsblk -o PARTUUID $rootGrain | sed -n "2p"`
+    partuuid=`blkid -s PARTUUID $rootGrain | sed "s/.*PARTUUID=\"\([a-f0-9-]\+\)\"/\1/"`
     bootMenu=$bootMenu"title Archlinux\n"
     bootMenu=$bootMenu"linux /vmlinuz-linux\n"
     bootMenu=$bootMenu"initrd /initramfs-linux.img\n"
