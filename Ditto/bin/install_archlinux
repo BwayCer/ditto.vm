@@ -425,6 +425,8 @@ fnPacman_openssh() {
     fi
 
     fnRecordHistory "$binDirPath/createVmPass"
+    fnRecordHistory systemctl enable dhcpcd.service
+    fnRecordHistory systemctl enable sshd.service
 }
 
 
