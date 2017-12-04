@@ -97,19 +97,19 @@
 
 
 sgdisk --zap-all --clear --mbrtogpt /dev/sda
-sgdisk -n     1:16384:12599295  -t 1:8300    /dev/sda
-sgdisk -n  2:12599296:13123583  -t 2:EF00    /dev/sda
-sgdisk -n  3:13123584:15220735  -t 3:8300    /dev/sda
-sgdisk -n  4:15220736:19415039  -t 4:8300    /dev/sda
-sgdisk -n  5:19415040:31997951  -t 5:8300    /dev/sda
-sgdisk -n  6:31997952:32522239  -t 6:8300    /dev/sda
-sgdisk -n  7:32522240:32784383  -t 7:8300 -p /dev/sda
+sgdisk -n     1:16384:12599295  -t 1:8300  /dev/sda
+sgdisk -n  2:12599296:13123583  -t 2:EF00  /dev/sda
+sgdisk -n  3:13123584:15220735  -t 3:8300  /dev/sda
+sgdisk -n  4:15220736:19415039  -t 4:8300  /dev/sda
+sgdisk -n  5:19415040:31997951  -t 5:8300  /dev/sda
+sgdisk -n  6:31997952:32522239  -t 6:8300  /dev/sda
+sgdisk -n  7:32522240:32784383  -t 7:8300  /dev/sda
 
 sgdisk --zap-all --clear --mbrtogpt /dev/sdb
-sgdisk -n     1:16384:4210687   -t 1:8300    /dev/sdb
-sgdisk -n   2:4210688:16793599  -t 2:8300    /dev/sdb
-sgdisk -n  3:16793600:23085055  -t 3:8300    /dev/sdb
-sgdisk -n  4:23085056:27279359  -t 4:8300 -p /dev/sdb
+sgdisk -n     1:16384:4210687   -t 1:8300  /dev/sdb
+sgdisk -n   2:4210688:16793599  -t 2:8300  /dev/sdb
+sgdisk -n  3:16793600:23085055  -t 3:8300  /dev/sdb
+sgdisk -n  4:23085056:27279359  -t 4:8300  /dev/sdb
 
 
 mkfs.ext4 /dev/sda1
@@ -145,18 +145,9 @@ mount /dev/sdb3 /mnt/var/lib/docker/
 mount /dev/sdb2 /mnt/srv/
 mount /dev/sdb4 /mnt/var/www/
 
-lsblk -o NAME,SIZE,RA,RO,RM,RAND,PARTFLAGS,PARTLABEL,PARTUUID
-lsblk -o NAME,MOUNTPOINT,FSTYPE,LABEL,UUID
-
 
 # 選擇映射站
-# Taiwan：
-#   http://ftp.tku.edu.tw/Linux/ArchLinux/$repo/os/$arch
-#   http://shadow.ind.ntou.edu.tw/archlinux/$repo/os/$arch
-#   http://archlinux.cs.nctu.edu.tw/$repo/os/$arch
-#   http://ftp.yzu.edu.tw/Linux/archlinux/$repo/os/$arch
 cat /etc/pacman.d/mirrorlist | grep "http://[^/]\+\.tw/.\+" > /etc/pacman.d/mirrorlist
-cat /etc/pacman.d/mirrorlist
 
 
 # 安裝基本程式包
@@ -164,14 +155,7 @@ pacstrap /mnt base bash-completion vim
 
 
 # 建立文件系統列表
-# # 根目錄 /dev/sda1
-# UUID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx       /               ext4            rw,relatime,data=ordered        0 1
-# # 開機目錄 /dev/sda3
-# UUID=xxxx-xxxx          /boot           vfat            rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,errors=remount-ro  0 2
-# # 其他目錄
-# UUID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx       /other          ext4            rw,relatime,data=ordered        0 2
 genfstab -U /mnt >> /mnt/etc/fstab
-cat /mnt/etc/fstab
 
 
 # 切換根目錄
@@ -184,18 +168,15 @@ arch-chroot /mnt
     bootctl install
 
     # 建立開機選單：
-    # PARTUUID=xxx 中的 xxx 請查找 "根目錄" 的 PARTUUID 取代 `blkid -s PARTUUID /dev/sdaX`
     echo -e "default arch\ntimeout 3" > /boot/loader/loader.conf
-    partuuid=`blkid -s PARTUUID /dev/sda1 | sed "s/.*PARTUUID=\"\([a-f0-9-]\+\)\"/\1/"`
-    echo -e "title Archlinux\nlinux /vmlinuz-linux\ninitrd /initramfs-linux.img\noptions root=PARTUUID=$partuuid rw" > /boot/loader/entries/arch.conf
-    cat /boot/loader/loader.conf
-    cat /boot/loader/entries/arch.conf
+    rootPartuuid=`blkid -s PARTUUID /dev/sda1 | sed "s/.*PARTUUID=\"\([a-f0-9-]\+\)\"/\1/"`
+    echo -e "title Archlinux\nlinux /vmlinuz-linux\ninitrd /initramfs-linux.img\noptions root=PARTUUID=$rootPartuuid rw" > /boot/loader/entries/arch.conf
 
 
     # 網路與 SSH
     pacman -S --noconfirm openssh
-    vim /etc/ssh/sshd_config
-      # PasswordAuthentication no
+    echo "PasswordAuthentication no" >> /etc/ssh/sshd_config
+    # 建立通用金鑰
     curl https://raw.githubusercontent.com/BwayCer/ditto.vm/Ditto/Ditto/bin/createVmPass | sh
     systemctl enable dhcpcd.service
     systemctl enable sshd.service
