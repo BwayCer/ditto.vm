@@ -105,7 +105,7 @@ fnAsk() {
     fnSearchItem 2 4 "$val" "$table"
 
     if [ $? -eq 1 ]; then
-        fnSearchItemWarn
+        fnSearchItemWarn "$val"
         exit 1
     fi
 
@@ -113,7 +113,9 @@ fnAsk() {
 }
 
 fnSearchItemWarn() {
-    tmpErrMsg="[錯誤] 找不到接通項目。"
+    local item="$1"
+
+    tmpErrMsg="[錯誤] 找不到接通項目。(\"$item\")"
     echo -e "\e[01;31m${tmpErrMsg}\e[00m"
 }
 
@@ -179,7 +181,7 @@ fnAddtional() {
                 if [ $? -eq 0 ]; then
                     fnCurl "`echo "$rtnSearchItem" | cut -d " " -f 2`"
                 else
-                    fnSearchItemWarn
+                    fnSearchItemWarn "$addtional"
                 fi
             done
         fi
