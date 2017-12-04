@@ -2,8 +2,8 @@
 # 腳本轉接
 
 
-originalPath="http://example.com/project"
-originalDirName="putThrough.projectName.tmp"
+originalPath="https://raw.githubusercontent.com/BwayCer/ditto.vm/Ditto/Ditto/bin/putThrough"
+originalDirName="putThrough.ditto.tmp"
 __dirname=`dirname $0`
 
 if [ ! -f "$0" ] || [ "`cat "$0" | sed -n "2p"`" != "# 腳本轉接" ]; then
@@ -26,25 +26,11 @@ fi
 
 binDirPath="$__dirname"
 
-webExample="http://example.com"
+github_bwaycer="https://raw.githubusercontent.com/BwayCer"
+github_bwaycer_dittoBin="$github_bwaycer/ditto.vm/Ditto/Ditto/bin"
 putThroughTable="
-# 範例
-* itemName-1 $webExample/itemPath-1
-  + addtionalName-3
-* itemName-2 $webExample/itemPath-2
-  + addtionalName-2 addtionalName-1
-* itemName-3 $webExample/itemPath-3
-  + addtionalName-1
-  + addtionalName-2 addtionalName-3
-  + addtionalName-4 addtionalName-5 addtionalName-6
 "
 addtionalTable="
-addtionalName-1 $webExample/addtionalPath-1
-addtionalName-2 $webExample/addtionalPath-2
-addtionalName-3 $webExample/addtionalPath-3
-addtionalName-4 $webExample/addtionalPath-4
-addtionalName-5 $webExample/addtionalPath-5
-addtionalName-6 $webExample/addtionalPath-6
 "
 
 
@@ -87,6 +73,7 @@ fnMain() {
     fnAddtional "$pickItem" "$putThroughTable" "$addtionalTable"
     fnCurl "`echo "$pickItem" | cut -d " " -f 4`"
     echo "$ sh $rtnCurl"
+    sh $rtnCurl
 }
 
 
@@ -199,6 +186,8 @@ fnCurl() {
     local url="$1"
     local filePath="$binDirPath/`basename $url`"
     echo "$ curl $url > $filePath"
+    curl $url > "$filePath"
+    chmod 755 $filePath
     rtnCurl=$filePath
 }
 
