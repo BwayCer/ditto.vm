@@ -24,14 +24,14 @@ elif [ "`basename "$__dirname"`" != "$originalDirName" ]; then
 fi
 
 
-binDirPath="$__dirname"
+binDirPath=$__dirname
 
 github_bwaycer="https://raw.githubusercontent.com/BwayCer"
 github_bwaycer_dittoBin="$github_bwaycer/ditto.vm/Ditto/Ditto/bin"
 putThroughTable="
 * createVmPass $github_bwaycer_dittoBin/createVmPass
 # 洛奇亞
-* Lugia $github_bwaycer_dittoBin/Lugia_os
+* Lugia_os $github_bwaycer_dittoBin/Lugia_os
   + createVmPass installArchlinux
 "
 addtionalTable="

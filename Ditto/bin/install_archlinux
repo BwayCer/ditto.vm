@@ -3,7 +3,7 @@
 
 
 __dirname=`dirname $0`
-binDirPath="$__dirname"
+binDirPath=$__dirname
 
 
 opt_logfile=""

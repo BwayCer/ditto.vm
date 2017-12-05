@@ -16,8 +16,8 @@
 
 
 __dirname=`dirname $0`
-binDirPath="$__dirname"
-libDirPath="$__dirname/../lib/hdd"
+binDirPath=$__dirname
+libDirPath=$__dirname/../lib/hdd
 
 
 opt_simpleCheck=0
