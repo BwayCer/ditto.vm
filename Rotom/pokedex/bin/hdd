@@ -2,7 +2,7 @@
 # 虛擬硬碟
 
 
-__dirname=`dirname $0`
+__dirname=`dirname "$0"`
 binDirPath=$__dirname
 
 

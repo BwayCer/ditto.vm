@@ -15,7 +15,7 @@
 #     <數量 (1-999)>
 
 
-__dirname=`dirname $0`
+__dirname=`dirname "$0"`
 binDirPath=$__dirname
 libDirPath=$__dirname/../lib/hdd
 

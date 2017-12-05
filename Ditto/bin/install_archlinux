@@ -2,7 +2,7 @@
 # ArchLinux 安裝腳本
 
 
-__dirname=`dirname $0`
+__dirname=`dirname "$0"`
 binDirPath=$__dirname
 
 

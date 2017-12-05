@@ -2,10 +2,10 @@
 # 洛奇亞 作業系統安裝腳本
 
 
-__dirname=`dirname $0`
+__dirname=`dirname "$0"`
 binDirPath=$__dirname
 
-logfilePath="$PWD/`basename $0`.log"
+logfilePath=$PWD/`basename "$0"`.log
 
 
 fnMain() {

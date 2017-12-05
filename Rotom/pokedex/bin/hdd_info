@@ -6,7 +6,7 @@
 # <name>   <size>   [<start>-<end>/<number>]   [ <start> - <end> / <grainSector> (<grainSize>) ]
 
 
-__dirname=`dirname $0`
+__dirname=`dirname "$0"`
 binDirPath=$__dirname
 
 
