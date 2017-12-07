@@ -22,13 +22,14 @@ fnMain_opt_allowList="
 "
 
 
-__dirname=`dirname "$0"`
-__filename=`basename "$0"`
-binDirPath=$__dirname
+_dirsh=`dirname "$0"`
+_binsh=$_dirsh/../../bin
+_libsh=$_dirsh/../
+_fileName=`basename "$0"`
 
-logFile=$__dirname/.logsh.log
-idFile=$__dirname/.logsh.id.tmp
-errMsgFile=$__dirname/.logsh.errMsg.tmp
+logFile=$_dirsh/.logsh.log
+idFile=$_dirsh/.logsh.id.tmp
+errMsgFile=$_dirsh/.logsh.errMsg.tmp
 
 nowTime=`date "+%Y-%m-%d %H:%M:%S"`
 
@@ -40,7 +41,7 @@ opt_recordMethod=""
 fnMain() {
     local tmp
 
-    tmp=`"$binDirPath/parseArgs" getArgs "$0" \
+    tmp=`"$_dirsh/parseArgs" getArgs "$0" \
         "$fnMain_subCmd_allowList" "$fnMain_opt_allowList" "$@"`
     case $? in
         0 )
@@ -51,11 +52,11 @@ fnMain() {
             exec "$tmp" "$@"
             ;;
         3 )
-            "$binDirPath/parseArgs" showHelp "$fnMain_argsInfo" "$fnMain_subCmd" "$fnMain_opt"
+            "$_dirsh/parseArgs" showHelp "$fnMain_argsInfo" "$fnMain_subCmd" "$fnMain_opt"
             exit
             ;;
         * )
-            "$0" "$__filename" error "錯誤命令， 訊息：\n$tmp"
+            "$0" "$_fileName" error "錯誤命令， 訊息：\n$tmp"
             exit 1
             ;;
     esac
@@ -116,7 +117,7 @@ fnMainHandle() {
     shift 2
 
     if [ -z "`echo "$fileName" | grep "[A-Za-z0-9_.-]"`" ]; then
-        "$0" "$__filename" error '只能使用 "A-Za-z0-9-_." 字符作為的文件名稱。 ('$fileName')'
+        "$0" "$_fileName" error '只能使用 "A-Za-z0-9-_." 字符作為的文件名稱。 ('$fileName')'
         exit 1
     fi
 
