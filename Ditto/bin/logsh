@@ -1,0 +1,259 @@
+#!/bin/bash
+# 日誌
+
+
+fnMain_argsInfo="<執行文件名稱>
+       <紀錄類型 txt|run|warn|finish|error> [紀錄參數 ...]"
+fnMain_subCmd=""
+fnMain_opt="
+  -t, --tail     等同於 \`tail $logFile\`。
+      --getid    取得上一筆日誌識別碼。
+  -e, --echo     只顯示於終端機上， 不記錄。
+  -r, --record   只記錄於日誌中， 不顯示。
+  -h, --help     幫助。
+"
+fnMain_subCmd_allowList=""
+fnMain_opt_allowList="
+ -t --tail 0
+  --getid 0
+ -e --echo 0
+ -r --record 0
+ -h --help 0
+"
+
+
+__dirname=`dirname "$0"`
+__filename=`basename "$0"`
+binDirPath=$__dirname
+
+logFile=$__dirname/.logsh.log
+idFile=$__dirname/.logsh.id.tmp
+errMsgFile=$__dirname/.logsh.errMsg.tmp
+
+nowTime=`date "+%Y-%m-%d %H:%M:%S"`
+
+
+opt_tail=0
+opt_getid=0
+opt_recordMethod=""
+
+fnMain() {
+    local tmp
+
+    tmp=`"$binDirPath/parseArgs" getArgs "$0" \
+        "$fnMain_subCmd_allowList" "$fnMain_opt_allowList" "$@"`
+    case $? in
+        0 )
+            eval set -- "$tmp"
+            ;;
+        2 )
+            shift
+            exec "$tmp" "$@"
+            ;;
+        3 )
+            "$binDirPath/parseArgs" showHelp "$fnMain_argsInfo" "$fnMain_subCmd" "$fnMain_opt"
+            exit
+            ;;
+        * )
+            "$0" "$__filename" error "錯誤命令， 訊息：\n$tmp"
+            exit 1
+            ;;
+    esac
+
+    local opt val tmp
+
+    while [ -n 1 ]
+    do
+        opt=$1
+        val=$2
+
+        if [ "$opt" == "--" ]; then
+            shift
+            break
+        fi
+
+        case "$opt" in
+            -t | --tail )
+                shift
+                opt_tail=1
+                ;;
+            --getid )
+                shift
+                opt_getid=1
+                ;;
+            -e | --echo )
+                shift
+                opt_recordMethod=$opt_recordMethod"e"
+                ;;
+            -r | --record )
+                shift
+                opt_recordMethod=$opt_recordMethod"r"
+                ;;
+        esac
+    done
+
+    fnMainHandle "$@"
+}
+
+fnMainHandle() {
+    if [ $opt_tail -eq 1 ]; then
+        tail "$@" "$logFile"
+        exit $?
+    fi
+
+    if [ $opt_getid -eq 1 ]; then
+        if [ -f "$idFile" ]; then
+            cat "$idFile"
+            rm "$idFile"
+            exit
+        else
+            exit 1
+        fi
+    fi
+
+    local fileName="$1"
+    local method="$2"
+    shift 2
+
+    if [ -z "`echo "$fileName" | grep "[A-Za-z0-9_.-]"`" ]; then
+        "$0" "$__filename" error '只能使用 "A-Za-z0-9-_." 字符作為的文件名稱。 ('$fileName')'
+        exit 1
+    fi
+
+    local logId stamp
+    local recordMethod styleCode outputHead recordHead msg
+
+    if [ -z "$opt_recordMethod" ]; then
+        recordMethod=er
+    else
+        recordMethod=$opt_recordMethod
+    fi
+
+    logId=$(fnRandom6c16)
+    stamp="$nowTime $logId"
+
+    styleCode=0
+    msg=$*
+
+    case "$method" in
+        "txt" )
+            fnMsgHead "$stamp" "$fileName" txt
+            outputHead=$rtnMsgHead_outputHead
+            recordHead=$rtnMsgHead_recordHead
+            ;;
+        "run" )
+            stamp=`date "+%Y-%m-%d %H:%M:%S"`" $logId"
+            fnMsgHead "$stamp" "$fileName" run
+            fnRecord $recordMethod "0" "$logFile" "$rtnMsgHead_outputHead" "$rtnMsgHead_recordHead" "\$ $*"
+
+            sh -c "$*" 2> $errMsgFile
+            tmp=$?
+            stamp=`date "+%Y-%m-%d %H:%M:%S"`" $logId"
+            if [ $tmp -eq 0 ]; then
+                fnMsgHead "$stamp" "$fileName" finish
+                outputHead=$rtnMsgHead_outputHead
+                recordHead=$rtnMsgHead_recordHead
+                msg="日誌識別碼 \"$logId\" 已完成。"
+            else
+                styleCode="01;31"
+                fnMsgHead "$stamp" "$fileName" error
+                outputHead=$rtnMsgHead_outputHead
+                recordHead=$rtnMsgHead_recordHead
+                msg="日誌識別碼 \"$logId\" 執行失敗， 訊息："
+                if [ `cat "$errMsgFile" | wc -l` -eq 0 ]; then
+                    msg=$msg" 無。"
+                else
+                    msg=$msg"\n"`cat "$errMsgFile"`
+                fi
+            fi
+            ;;
+        "warn" )
+            styleCode="01;33"
+            fnMsgHead "$stamp" "$fileName" warn
+            outputHead=$rtnMsgHead_outputHead
+            recordHead=$rtnMsgHead_recordHead
+            ;;
+        "finish" )
+            fnMsgHead "$stamp" "$fileName" finish
+            outputHead=$rtnMsgHead_outputHead
+            recordHead=$rtnMsgHead_recordHead
+            ;;
+        "error" )
+            styleCode="01;31"
+            fnMsgHead "$stamp" "$fileName" error
+            outputHead=$rtnMsgHead_outputHead
+            recordHead=$rtnMsgHead_recordHead
+            ;;
+    esac
+
+    echo $logId > "$idFile"
+    fnRecord $recordMethod "$styleCode" "$logFile" "$outputHead" "$recordHead" "$msg"
+}
+
+
+fnRandom6c16() {
+    local num
+    num="$RANDOM""$RANDOM"
+    num=`printf "%06x" $(( $num % 16777216 ))`
+    echo $num
+}
+
+fnRecord() {
+    local recordMethod="$1"
+    local styleCode="$2"
+    local logFile="$3"
+    local outputHead="$4"
+    local recordHead="$5"
+    local msg="$6"
+
+    local txtOutput txtRecord
+
+    txtOutput=`echo -e "$msg" | sed "s/^/$outputHead/"`
+    txtRecord=`echo -e "$msg" | sed "s/^/$recordHead/"`
+
+    if [ -n "`echo $recordMethod | grep "e"`" ]; then
+        echo -e "\e[${styleCode}m${txtOutput}\e[00m"
+    fi
+    if [ -n "`echo $recordMethod | grep "r"`" ]; then
+        echo "$txtRecord" >> "$logFile"
+    fi
+}
+
+rtnMsgHead_outputHead=""
+rtnMsgHead_recordHead=""
+fnMsgHead() {
+    local stamp="$1"
+    local fileName="$2"
+    local method="$3"
+
+    local outputHead recordHead
+
+    case "$method" in
+        "txt" )
+            outputHead="[$fileName] [紀錄]: "
+            recordHead="$stamp txt [$fileName] [紀錄]: "
+            ;;
+        "run" )
+            outputHead="[$fileName] [執行]: "
+            recordHead="$stamp run [$fileName] [執行]: "
+            ;;
+        "warn" )
+            outputHead="[$fileName] [警告]: "
+            recordHead="$stamp warn [$fileName] [警告]: "
+            ;;
+        "finish" )
+            outputHead="[$fileName] [完成]: "
+            recordHead="$stamp finish [$fileName] [完成]: "
+            ;;
+        "error" )
+            outputHead="[$fileName] [錯誤]: "
+            recordHead="$stamp error [$fileName] [錯誤]: "
+            ;;
+    esac
+
+    rtnMsgHead_outputHead=$outputHead
+    rtnMsgHead_recordHead=$recordHead
+}
+
+fnMain "$@"
+
