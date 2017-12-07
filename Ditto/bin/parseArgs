@@ -1,0 +1,438 @@
+#!/bin/bash
+# 解析參數
+
+
+fnMain_argsInfo=""
+fnMain_subCmd="
+  showHelp       顯示幫助。
+  getArgs        取得參數。
+  getArgsRegex   取得參數。
+  info           取得參數資訊。
+"
+fnMain_opt="
+  -h, --help   幫助。
+"
+fnMain_subCmd_allowList="
+ showHelp getArgs
+ getArgsRegex info
+"
+fnMain_opt_allowList=""
+fnMain() {
+    local opt execCmd
+
+    execCmd=$(fnAllowVal "$fnMain_subCmd_allowList" "$1")
+
+    case $execCmd in
+        showHelp )
+            shift
+            fnShowHelp "$@"
+            ;;
+        getArgs )
+            shift
+            fnGetArgs "$@"
+            ;;
+        getArgsRegex )
+            shift
+            fnGetArgsRegex "$@"
+            ;;
+        info )
+            shift
+            fnInfo "$@"
+            ;;
+    esac
+
+    for opt in "$@"
+    do
+        if [ "$opt" == "--" ] || [ -z "`echo "_$opt" | grep "^_-"`" ]; then break; fi
+        if [ "$opt" == "-h" ] || [ "$opt" == "--help" ]; then
+            fnShowHelp "$fnMain_argsInfo" "$fnMain_subCmd" "$fnMain_opt"
+        fi
+    done
+
+    echo '不符合預期的執行命令。 ("showHelp", "getArgs", "getArgsRegex", "info")'
+}
+
+
+fnShowHelp_argsInfo="<參數資訊> <子命令資訊> <選項資訊>"
+fnShowHelp_subCmd=""
+fnShowHelp_opt="
+  -h, --help   幫助。
+"
+fnShowHelp() {
+    local argsInfo txtSubCmd txtOpt
+    argsInfo=$1
+    txtSubCmd=$2
+    txtOpt=$3
+
+    if [ "$argsInfo" == "-h" ] || [ "$argsInfo" == "--help" ]; then
+        argsInfo=$fnShowHelp_argsInfo
+        txtSubCmd=$fnShowHelp_subCmd
+        txtOpt=$fnShowHelp_opt
+    fi
+
+    local txtHelp usage
+
+    txtHelp=""
+    usage="用法："
+
+    if [ -n "$txtSubCmd" ]; then
+        usage=$usage" [命令]"
+    fi
+    if [ -n "$txtOpt" ]; then
+        usage=$usage" [選項]"
+    fi
+    case "$argsInfo" in
+        0 | "" )
+            ;;
+        1 )
+            usage=$usage" [參數]"
+            ;;
+        * )
+            usage=$usage" $argsInfo"
+            ;;
+    esac
+
+    txtHelp=$txtHelp"\n"$usage
+    txtHelp=$txtHelp"\n"
+    if [ -n "$txtSubCmd" ]; then
+        txtHelp=$txtHelp"\n"
+        txtHelp=$txtHelp"\n""命令："
+        txtHelp=$txtHelp"\n""$txtSubCmd"
+    fi
+    if [ -n "$txtOpt" ]; then
+        txtHelp=$txtHelp"\n"
+        txtHelp=$txtHelp"\n""選項："
+        txtHelp=$txtHelp"\n""$txtOpt"
+    fi
+    txtHelp=$txtHelp"\n"
+
+    echo -e "$txtHelp"
+    exit
+}
+
+fnGetArgs_argsInfo="<執行文件路徑> <子命令清單資訊> <選項清單資訊> [待判斷參數 ...]"
+fnGetArgs_subCmd=""
+fnGetArgs_opt="
+  -h, --help   幫助。
+"
+fnGetArgs() {
+    local targetPath txtSubCmd_allowList txtOpt_allowList
+    targetPath=$1
+    txtSubCmd_allowList=$2
+    txtOpt_allowList=$3
+    shift 3
+
+    if [ "$targetPath" == "-h" ] || [ "$targetPath" == "--help" ]; then
+        fnShowHelp "$fnGetArgs_argsInfo" "" "$fnGetArgs_opt"
+    fi
+
+    local targetFileName args
+
+    targetFileName=`basename "$targetPath"`
+
+    fnParseCommand "$targetPath" "" "$txtSubCmd_allowList" "$@"
+    if [ $? -ne 0 ]; then exit $?; fi
+    fnParseOption "$targetFileName" "" "$txtOpt_allowList" "$@"
+    if [ $? -ne 0 ]; then exit $?; fi
+}
+
+fnGetArgsRegex_argsInfo="<執行文件路徑> <子命令資訊> <選項資訊> [待判斷參數 ...]"
+fnGetArgsRegex_subCmd=""
+fnGetArgsRegex_opt="
+  -h, --help   幫助。
+"
+fnGetArgsRegex() {
+    local targetPath txtSubCmd txtOpt
+    targetPath=$1
+    txtSubCmd=$2
+    txtOpt=$3
+    shift 3
+
+    if [ "$targetPath" == "-h" ] || [ "$targetPath" == "--help" ]; then
+        fnShowHelp "$fnGetArgsRegex_argsInfo" "$fnGetArgsRegex_subCmd" "$fnGetArgsRegex_opt"
+    fi
+
+    local targetFileName args
+
+    targetFileName=`basename "$targetPath"`
+
+    fnParseCommand "$targetPath" "$txtSubCmd" "" "$@"
+    if [ $? -ne 0 ]; then exit $?; fi
+    fnParseOption "$targetFileName" "$txtOpt" "" "$@"
+    if [ $? -ne 0 ]; then exit $?; fi
+}
+
+fnInfo_argsInfo="<參數資訊> <子命令資訊> <選項資訊>"
+fnInfo_subCmd=""
+fnInfo_opt="
+  -h, --help   幫助。
+"
+fnInfo() {
+    local argsInfo txtSubCmd txtOpt
+    argsInfo=$1
+    txtSubCmd=$2
+    txtOpt=$3
+    shift 4
+
+    if [ "$argsInfo" == "-h" ] || [ "$argsInfo" == "--help" ]; then
+        fnShowHelp "$fnInfo_argsInfo" "$fnInfo_subCmd" "$fnInfo_opt"
+    fi
+
+    local tmp txtInfo usage allowList
+
+    txtInfo=""
+
+    usage="用法："
+
+    if [ -n "$txtSubCmd" ]; then
+        usage=$usage" [命令]"
+    fi
+    if [ -n "$txtOpt" ]; then
+        usage=$usage" [選項]"
+    fi
+    case "$argsInfo" in
+        0 | "" )
+            ;;
+        1 )
+            usage=$usage" [參數]"
+            ;;
+        * )
+            usage=$usage" $argsInfo"
+            ;;
+    esac
+
+    txtInfo=$txtInfo"\n"$usage
+    txtInfo=$txtInfo"\n"
+
+    if [ -n "$txtSubCmd" ]; then
+        txtInfo=$txtInfo"\n"
+        txtInfo=$txtInfo"\n""命令可用清單："
+        allowList=$(fnParseCommand_allowList "$txtSubCmd")
+        allowList=`printf " %s %s %s \n" $allowList`
+        txtInfo=$txtInfo"\n"$allowList
+    fi
+    if [ -n "$txtOpt" ]; then
+        txtInfo=$txtInfo"\n"
+        txtInfo=$txtInfo"\n""選項可用清單："
+        allowList=$(fnParseOption_allowList "$txtOpt")
+        txtInfo=$txtInfo"\n"$allowList
+    fi
+    txtInfo=$txtInfo"\n"
+
+    echo -e "$txtInfo"
+    exit
+}
+
+
+fnAllowVal() {
+    local allowList maybeVal
+    allowList=`echo " "$1" "`
+    maybeVal=$2
+
+    if [ -n "`echo "$maybeVal" | grep "[^ ]\+"`" ] &&
+        [ -n "`echo "$allowList" | grep -i " $maybeVal "`" ]
+    then
+        echo `echo "$allowList" | sed "s/^.* \($maybeVal\) .*$/\1/i"`
+    fi
+}
+
+fnParseCommand() {
+    local targetPath txtSubCmd allowList
+    targetPath=$1
+    txtSubCmd=$2
+    allowList=$3
+    shift 3
+
+    local targetDirPath targetFileName execCmd
+
+    targetDirPath=`dirname "$targetPath"`
+    targetFileName=`basename "$targetPath"`
+
+    if [ -n "$txtSubCmd" ] && [ -z "$allowList" ]; then
+        allowList=$(fnParseCommand_allowList "$txtSubCmd")
+    fi
+    if [ -z "$allowList" ]; then return; fi
+
+    execCmd=$(fnAllowVal "$allowList" "$1")
+
+    if [ -z "$execCmd" ]; then
+        return
+    elif [ -x "$targetDirPath/$execCmd" ]; then
+        echo "$targetDirPath/$execCmd"
+        exit 2
+    else
+        echo '找不到子命令執行文件。 ('$targetDirPath/${targetFileName}_$execCmd')'
+        exit 1
+    fi
+}
+
+fnParseCommand_allowList() {
+    local txtSubCmd
+    txtSubCmd=$1
+
+    local idx len val allowList regexMatchCmd
+
+    regexMatchCmd="^  \([A-Za-z0-9]\+\)\(   .\+\|$\)"
+    allowList=""
+
+    txtSubCmd=`echo -e "$txtSubCmd" | grep "$regexMatchCmd"`
+    len=`echo -e "$txtSubCmd" | wc -l`
+
+    if [ -z "$txtSubCmd" ]; then return; fi
+
+    for idx in `seq 1 $len`
+    do
+        val=`echo -e "$txtSubCmd" | sed -n "${idx}p"`
+
+        allowList=$allowList" `echo "$val" | sed "s/$regexMatchCmd/\1/"` "
+    done
+
+    echo "$allowList"
+}
+
+fnParseOption() {
+    now=`date "+%s%N"`
+    local targetFileName txtOpt allowList args
+    targetFileName=$1
+    txtOpt=$2
+    allowList=$3
+    shift 3
+    args=("$@")
+
+    local opt val hasValCode txtArgs hasUsageWarn errMsg
+
+    if [ -n "$txtOpt" ] && [ -z "$allowList" ]; then
+        allowList=$(fnParseOption_allowList "$txtOpt")
+    fi
+    txtArgs=""
+    errMsg=""
+
+    while [ -n 1 ]
+    do
+        opt=${args[0]}
+        val=${args[1]}
+
+        if [ "$opt" == "--" ] || [ -z "`echo "_$opt" | grep "^_-"`" ]; then break; fi
+
+        if [ "$opt" == "-h" ] || [ "$opt" == "--help" ]; then exit 3; fi
+
+        if [ -z "`echo "_$opt" | grep "^_-[A-Za-z0-9]\+$"`" ] &&
+            [ -z "`echo "_$opt" | grep "^_--[A-Za-z0-9_-]\+$"`" ]
+        then
+            echo '不符預期的選項。 ('$opt')'
+            exit 1
+        fi
+
+        if [ -n "`echo "_$opt" | grep "^_-[A-Za-z0-9]"`" ]; then
+            if [ ${#opt} -ne 2 ]; then
+                val="-"${opt:2}
+                opt=${opt:0:2}
+                args=("$opt" "$val" "${args[@]:1}")
+            fi
+        fi
+
+        if [ -z "$allowList" ]; then
+            errMsg=$errMsg"\n"'找不到選項。 ('$opt') '
+            args=("${args[@]:1}")
+        elif [ -n "`echo -e "$allowList" | grep " $opt "`" ]; then
+            txtArgs=$txtArgs"$opt "
+            args=("${args[@]:1}")
+
+            hasValCode=`echo -e "$allowList" | grep " $opt " | cut -d " " -f 4`
+            if [ $hasValCode -eq 1 ]; then
+                if [ -z "$val" ] || [ -n "`echo "$val" | grep "^-"`" ]; then
+                    errMsg=$errMsg"\n"'不符預期的選項值。 ('$opt=\"$val\"') '
+                    continue
+                fi
+
+                txtArgs=$txtArgs"'`echo "$val" | sed "s/'/\\\'/"`' "
+                args=("${args[@]:1}")
+            fi
+        else
+            errMsg=$errMsg"\n"'找不到選項。 ('$opt') '
+            args=("${args[@]:1}")
+        fi
+    done
+
+    hasUsageWarn=1
+    if [ "${args[0]}" == "--" ]; then
+        hasUsageWarn=0
+        args=("${args[@]:1}")
+    fi
+
+    txtArgs=$txtArgs"-- "
+
+    for val in "${args[@]}"
+    do
+        if [ "$val" == "-h" ] || [ "$val" == "--help" ]; then exit 3; fi
+
+        if [ $hasUsageWarn -eq 1 ] && [ -n "`echo "_$val" | grep "^_-"`" ]; then
+            errMsg=$errMsg"\n不符預期的命令 \"[命令] [選項] [參數]\" 的用法。 (\$ ./$targetFileName $*)"
+            break
+        fi
+
+        txtArgs=$txtArgs"'`echo "_$val" | sed "s/'/\\\'/" | sed "s/^_//"`' "
+    done
+
+    if [ -n "$errMsg" ]; then
+        echo -e "`echo -e "$errMsg" | sed "1d"`"
+        exit 1
+    else
+        echo "$txtArgs"
+        exit
+    fi
+}
+
+fnParseOption_allowList() {
+    local txtOpt
+    txtOpt=$1
+
+    local idx len val regexMatchOpt
+    local optShort optLong optArgu allowList
+
+    regexMatchOpt="^  \(-\([A-Za-z0-9]\),\?\|   \)\( --\([A-Za-z0-9]\{2,\}\)\)\?\s*"
+    regexMatchOpt=$regexMatchOpt"\(  \([[<][^]>]\+[]>]\)\|\s*\)\(   .\+\|$\)"
+    allowList=""
+
+    txtOpt=`echo "$txtOpt" | grep "$regexMatchOpt"`
+    len=`echo -e "$txtOpt" | wc -l`
+
+    for idx in `seq 1 $len`
+    do
+        val=`echo -e "$txtOpt" | sed -n "${idx}p"`
+
+        optShort=`echo "$val" | sed "s/$regexMatchOpt/\2/"`
+        optLong=` echo "$val" | sed "s/$regexMatchOpt/\4/"`
+        optArgu=` echo "$val" | sed "s/$regexMatchOpt/\6/"`
+
+        if [ -z "$optShort" ] && [ -z "$optLong" ]; then
+            continue
+        fi
+        if [ -n "$optShort" ]; then
+            optShort="-"$optShort
+        fi
+        if [ -n "$optLong" ]; then
+            optLong="--"$optLong
+        fi
+
+        case $optArgu in
+            \<*\> )
+                optArgu="1"
+                ;;
+            \[*\] )
+                optArgu="0"
+                ;;
+            "" )
+                optArgu="0"
+                ;;
+        esac
+
+        allowList=$allowList"\n $optShort $optLong $optArgu"
+    done
+
+    echo -e "`echo -e "$allowList" | sed "1d"`"
+}
+
+
+fnMain "$@"
+
