@@ -2,8 +2,8 @@
 # 腳本轉接
 
 
-originalPath="https://raw.githubusercontent.com/BwayCer/ditto.vm/Ditto/Ditto/bin/putThrough"
-originalDirName="putThrough.ditto.tmp"
+originalPath="https://raw.githubusercontent.com/BwayCer/ditto.vm/Ditto/bin/ditto.putThrough"
+originalDirName="ditto.putThrough.tmp"
 __dirname=`dirname "$0"`
 
 if [ ! -f "$0" ] || [ "`cat "$0" | sed -n "2p"`" != "# 腳本轉接" ]; then
@@ -27,16 +27,16 @@ fi
 binDirPath=$__dirname
 
 github_bwaycer="https://raw.githubusercontent.com/BwayCer"
-github_bwaycer_dittoBin="$github_bwaycer/ditto.vm/Ditto/Ditto/bin"
+github_bwaycer_dittoBin="$github_bwaycer/ditto.vm/Ditto"
 putThroughTable="
-* createVmPass $github_bwaycer_dittoBin/createVmPass
+* createVmPass $github_bwaycer_dittoBin/bin/createVmPass
 # 洛奇亞
-* Lugia_os $github_bwaycer_dittoBin/Lugia_os
-  + createVmPass installArchlinux
+* Lugia_os $github_bwaycer_dittoBin/lib/archlinuxInstallation/Lugia_os
+  + createVmPass Archen_guide
 "
 addtionalTable="
-createVmPass $github_bwaycer_dittoBin/createVmPass
-installArchlinux $github_bwaycer_dittoBin/install_archlinux
+createVmPass $github_bwaycer_dittoBin/bin/createVmPass
+Archen_guide $github_bwaycer_dittoBin/lib/archlinuxInstallation/Archen_guide
 "
 
 

@@ -2,12 +2,14 @@
 # 虛擬硬碟資訊 - 檢查
 
 
-__dirname=`dirname "$0"`
-binDirPath=$__dirname
+_dirsh=`dirname "$0"`
+_binsh=$_dirsh/../../bin
+_libsh=$_dirsh/..
+_fileName=`basename "$0"`
 
 
 fnMain() {
-    local vhddDirPath=`"$binDirPath/path.resolve" "$1"`
+    local vhddDirPath=`"$_libsh/basesh/path.resolve" "$1"`
 
 
     if [ ! -f "$vhddDirPath/info.txt" ]; then
@@ -36,7 +38,7 @@ fnMain() {
     for val in $tmpVhddInfo
     do
         amount=$(( $amount + 1 ))
-        "$binDirPath/runingDot" $amount
+        "$_libsh/basesh/runingDot" $amount
 
 
         number=`echo "$val" | sed "s/$regexInfo/\2/"`

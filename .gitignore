@@ -2,7 +2,8 @@
 !.gitignore
 
 !README.md
+!.bash_completion/
 !bin/
-!Rotom/
-!Ditto/
+!lib/
+!looseLeaf/
 

@@ -2,8 +2,10 @@
 # 虛擬硬碟
 
 
-__dirname=`dirname "$0"`
-binDirPath=$__dirname
+_dirsh=`dirname "$0"`
+_binsh=$_dirsh/../../bin
+_libsh=$_dirsh/..
+_fileName=`basename "$0"`
 
 
 fnMain() {
@@ -11,7 +13,7 @@ fnMain() {
 
     case "$cmd" in
         "info" )
-            "$binDirPath/hdd_info" "$@"
+            "$_dirsh/hdd_info.sh" "$@"
             ;;
         "add" )
             fnHddAdd "$@"
@@ -23,7 +25,7 @@ fnMain() {
 fnHddAdd() {
     local simpleCheck
 
-    simpleCheck=`"$binDirPath/hdd_addVmdk" --simpleCheck "$@"`
+    simpleCheck=`"$_dirsh/hdd_addVmdk.sh" --simpleCheck "$@"`
     if [ $? -eq 1 ]; then
         echo "$simpleCheck"
         exit 1;
@@ -71,12 +73,12 @@ fnHddAdd() {
         mkdir "$vhddDirPath/vHDD/"
     fi
 
-    "$binDirPath/hdd_info_check" "$vhddDirPath"
+    "$_dirsh/hdd_info_check.sh" "$vhddDirPath"
     if [ $? -eq 1 ]; then exit 1; fi
 
 
     if [ -n "`echo "$@" | grep "$regexParseOptionA"`" ]; then
-        "$binDirPath/hdd_addVmdk" $txtOptArgu $optNoConfirm "$vhddDirPath" \
+        "$_dirsh/hdd_addVmdk.sh" $txtOptArgu $optNoConfirm "$vhddDirPath" \
             "`echo "$@" | sed "s/$regexParseOptionA/\2/"`" \
             "`echo "$@" | sed "s/$regexParseOptionA/\3/"`" \
             "`echo "$@" | sed "s/$regexParseOptionA/\5/"`" \
@@ -85,7 +87,7 @@ fnHddAdd() {
     elif [ -n "`echo "$1" | grep "$regexParseOptionB"`" ]; then
         for val in "$@"
         do
-            "$binDirPath/hdd_addVmdk" $txtOptArgu $optNoConfirm "$vhddDirPath" \
+            "$_dirsh/hdd_addVmdk.sh" $txtOptArgu $optNoConfirm "$vhddDirPath" \
                 "`echo "$val" | sed "s/$regexParseOptionB/\2/"`" \
                 "`echo "$val" | sed "s/$regexParseOptionB/\3/"`" \
                 "`echo "$val" | sed "s/$regexParseOptionB/\5/"`" \

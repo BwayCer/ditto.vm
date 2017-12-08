@@ -2,7 +2,7 @@
 # 選項提示
 
 
-# ./optionPrompt.sh 請選擇 [Yes|yes|Y|y|*]:確定 [No|no|N|n]:取消
+# ./prompt 請選擇 [Yes|yes|Y|y|*]:確定 [No|no|N|n]:取消
 # 請選擇 ( Yes: 確定 ; No: 取消 ) :
 # 請選擇 ( Yes: confirm ; No: cancel ) :
 

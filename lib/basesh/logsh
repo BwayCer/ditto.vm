@@ -24,7 +24,7 @@ fnMain_opt_allowList="
 
 _dirsh=`dirname "$0"`
 _binsh=$_dirsh/../../bin
-_libsh=$_dirsh/../
+_libsh=$_dirsh/..
 _fileName=`basename "$0"`
 
 logFile=$_dirsh/.logsh.log

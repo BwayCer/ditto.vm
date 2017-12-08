@@ -6,7 +6,7 @@
 # https://github.com/BwayCer/ditto.vm/blob/Rotom/Rotom/pokedex/README.md#問題集-1
 
 
-# ./hdd_addVmdk \
+# ./hdd_addVmdk.sh \
 #     [--noconfirm] \
 #     <目標目錄>
 #     [<磁區名稱 [A-Za-z0-9_]>]
@@ -15,9 +15,10 @@
 #     <數量 (1-999)>
 
 
-__dirname=`dirname "$0"`
-binDirPath=$__dirname
-libDirPath=$__dirname/../lib/hdd
+_dirsh=`dirname "$0"`
+_binsh=$_dirsh/../../bin
+_libsh=$_dirsh/..
+_fileName=`basename "$0"`
 
 
 opt_simpleCheck=0
@@ -62,7 +63,7 @@ fnMain() {
 }
 
 fnMainHandle() {
-    local vhddDirPath=`"$binDirPath/path.resolve" "$1"`
+    local vhddDirPath=`"$_libsh/basesh/path.resolve" "$1"`
     local name="$2"
     local grainSizeM="$3"
     local startNum=$4
@@ -218,8 +219,8 @@ fnCheckExistFile() {
 
     if [ ${#warnList[@]} -ne 0 ]; then
         echo "以下文件已存在： ${warnList[@]}"
-        "$binDirPath/prompt" "是否選擇覆蓋已存在文件" "[Yes|Y|yes|y]" "[No|N|no|n|*]"
-        if [ "`"$binDirPath/prompt" rtnAnswer`" == "Yes" ]; then
+        "$_libsh/basesh/prompt" "是否選擇覆蓋已存在文件" "[Yes|Y|yes|y]" "[No|N|no|n|*]"
+        if [ "`"$_libsh/basesh/prompt" rtnAnswer`" == "Yes" ]; then
             for val in ${warnList[@]}
             do
                 lineNumber=`   echo -e "$vhddInfo" | grep -n "^$val" | cut -d ":" -f 1`
@@ -337,7 +338,7 @@ fnHandleCreateVhdd() {
 
         if [ -n "`echo "$existVhddNumber" | grep "$number"`" ]; then continue; fi
 
-        fnCopyVmdk "$libDirPath/$grainSource" "$vhddDirPath/vHDD/$fileName"
+        fnCopyVmdk "$_dirsh/hdd/$grainSource" "$vhddDirPath/vHDD/$fileName"
 
         amount=$(( $amount + 1 ))
         totalSize=$(( $totalSize + $size ))
