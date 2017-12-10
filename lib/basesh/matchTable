@@ -1,0 +1,46 @@
+#!/bin/bash
+# 表格資料抓取
+
+
+# ./matchTable <抓取數量 (0: 全部)> <行數 1,2,3 (同 cut 命令)> <表格> <關鍵字 (同 grep 命令)> [選項 i|o|v|r]
+# ./matchTable 0 2,4 "
+# 1 abc def GHIJKL
+# 2 ghi jkl MNOPUR
+# 3 mno pur ABCDEF
+# 4 stu vwx STUVWX
+# 5 yz  YZ
+# " "abc" ivr
+
+
+
+fnMain() {
+    local matchCount column table searchKey grepOpt
+    matchCount=$1
+    pickColumn=$2
+    table=$3
+    searchKey=$4
+    searchOpt=$5
+
+    local idx val seqList grepOpt matchList
+
+    grepOpt="-"`echo "$searchOpt" | sed "s/[^iov]//g"`
+    matchList=`echo -e "$table" | cut -d " " -f $pickColumn`
+    matchList=(`echo -e "$matchList" | grep -n "." | grep $grepOpt "$searchKey" | cut -d ":" -f 1`)
+
+    if [ $matchCount -eq 0 ] || [ $matchCount -gt ${#matchList[@]} ]; then
+        matchCount=${#matchList[@]}
+    fi
+
+    seqList=`seq 0 $(( $matchCount - 1 ))`
+    if [ -n "`echo "$searchOpt" | grep "r"`" ]; then
+        seqList=`echo "$seqList" | sort -rn`
+    fi
+
+    for idx in $seqList
+    do
+        echo -e "$table" | sed -n "${matchList[ $idx ]}p"
+    done
+}
+
+fnMain "$@"
+

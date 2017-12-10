@@ -2,16 +2,16 @@
 # 選項提示
 
 
-# ./prompt 請選擇 [Yes|yes|Y|y|*]:確定 [No|no|N|n]:取消
+## 提問
+# ./prompt 請選擇 "Yes|yes|Y|y:*:確定" "No|no|N|n::取消"
 # 請選擇 ( Yes: 確定 ; No: 取消 ) :
-# 請選擇 ( Yes: confirm ; No: cancel ) :
 
-
-__dirname=`dirname $0`
+## 回傳上一則對話的結果
+# ./prompt rtnAnswer
 
 
 fnMain() {
-    local recordFile="$__dirname/.prompt.tmp"
+    local recordFile=`dirname "$0"`"/.prompt.tmp"
 
     if [ "$1" == "rtnAnswer" ]; then
         if [ -f "$recordFile" ]; then
@@ -28,84 +28,68 @@ fnMain() {
 
 rtnPrompt=""
 fnPrompt() {
-    local txtQuestion="$1"; shift
+    local txtQuestion
+    txtQuestion=$1
 
-    local tmpOpt
-    local option optionName describe
-    local regexCompleteOption="\($fnPrompt_regexAllowOption\)\(:\(.*\)\)\?"
-    local defaultOption=""
-    local txtList=""
-    local txtDescribe=""
+    local val describe
+    local option optionName optionDefault optionDescribe
+    local defaultOption txtList txtDescribe
 
-    for tmpOpt in "$@"
+    txtList=""
+    defaultOption=""
+    txtDescribe=""
+
+    for val in "${@:1}"
     do
-        if [ -z "`echo "$tmpOpt" | grep "$regexCompleteOption"`" ]; then continue; fi
+        if [ -z "`echo "$val" | grep "[A-Za-z0-9_-][A-Za-z0-9_|-]*\(:\*\?\)\?\(:.\*\)\?"`" ]; then continue; fi
 
-        option="`    echo "$tmpOpt" | sed "s/$regexCompleteOption/\1/"`"
-        optionName="`echo "$tmpOpt" | sed "s/$regexCompleteOption/\2/"`"
-        describe="`  echo "$tmpOpt" | sed "s/$regexCompleteOption/\6/"`"
+        option=`        echo ":$val"   | cut -d ":" -f 2`
+        optionName=`    echo "$option" | cut -d "|" -f 1`
+        optionDefault=` echo ":$val"   | cut -d ":" -f 3`
+        optionDescribe=`echo ":$val"   | cut -d ":" -f 4-`
 
-        if [ -n "$describe" ]; then
-            describe=": $describe"
+        describe=$optionName
+        if [ -n "$optionDescribe" ]; then
+            describe=$describe": "$optionDescribe
         fi
 
-        if [ -n "`echo "$option" | grep "\*"`" ]; then
+        txtList=$txtList"\n|$option|"
+
+        if [ "$optionDefault" == "*" ]; then
             defaultOption="$optionName"
-            fnPrompt_fnDefaultString "${optionName}${describe} ;"
-            txtDescribe="$txtDescribe $rtnDefaultString"
+            txtDescribe=$txtDescribe" \e[01;32m${describe} ;\e[00m"
         else
-            txtDescribe="$txtDescribe ${optionName}${describe} ;"
+            txtDescribe=$txtDescribe" $describe ;"
         fi
-
-        txtList="$txtList$option"
     done
 
-    if [ -n "$txtList" ]; then
-        fnobjParseOption_defaultOption="$defaultOption"
-        fnobjParseOption_optList="$txtList"
-        fnobjParseOption_optDescribe=" ($txtDescribe )"
-    else
-        fnobjParseOption_defaultOption=""
-        fnobjParseOption_optList=""
-        fnobjParseOption_optDescribe=""
+    if [ -z "$txtList" ]; then
+        tmpErrMsg='[錯誤] 不符合預期的參數。 ($ ./prompt <問題> <選項 "[A-Za-z0-9_|-]*:\*\?:.*" ...>'
+        echo -e "\e[01;31m${tmpErrMsg}\e[00m"
+        exit 1
     fi
 
-    fnPrompt_fnAsk "$txtQuestion" \
-        "$fnobjParseOption_defaultOption" \
-        "$fnobjParseOption_optList" \
-        "$fnobjParseOption_optDescribe"
+    fnPrompt_ask "$txtQuestion ($txtDescribe )" "$txtList" "$defaultOption"
 }
-fnPrompt_regexAllowOption="\[\([A-Za-z0-9]*\)\(|[A-Za-z0-9]*\)*\(|\*\)\?\]"
-fnPrompt_rtnDefaultString=""
-fnPrompt_fnDefaultString() {
-    local defaultString="$1"
+fnPrompt_ask() {
+    local txtQuestion txtList defaultOption
+    txtQuestion=$1
+    txtList=$2
+    defaultOption=$3
 
-    rtnDefaultString="\e[01;32m${defaultString}\e[00m"
-}
-fnPrompt_rtnAsk=""
-fnPrompt_fnAsk() {
-    local txtQuestion="$1"
-    local defaultOption="$2"
-    local optList="$3"
-    local optDescribe="$4"
+    local tmpCho
 
-    local tmpCho regexChoose
-
-    printf "${txtQuestion}${optDescribe} : "
+    printf "$txtQuestion : "
     read tmpCho
 
-    regexChoose=".*\(\[\(\|[A-Za-z0-9|]*|\)$tmpCho\(|[A-Za-z0-9|]*\|\)\(|\*\)\?\]\).*"
-
-    if [ -z "$tmpCho" ] && [ -z "$defaultOption" ]; then
-        fnPrompt_fnAsk "$txtQuestion" "$defaultOption" "$optList" "$optDescribe"
-    elif [ -z "$tmpCho" ]; then
+    if [ -z "$tmpCho" ] && [ -n "$defaultOption" ]; then
         rtnPrompt="$defaultOption"
-    elif [ "$tmpCho" == "*" ]; then
-        fnPrompt_fnAsk "$txtQuestion" "$defaultOption" "$optList" "$optDescribe"
-    elif [ -n "`echo "$optList" | grep "$regexChoose"`" ]; then
-        rtnPrompt="`echo "$optList" | sed "s/$regexChoose/\1/" | sed "s/$fnPrompt_regexAllowOption/\1/"`"
+    elif [ -z "$tmpCho" ] || [ -n "`echo "$tmpCho" | grep "[^A-Za-z0-9_-]"`" ]; then
+        fnPrompt_ask "$txtQuestion" "$txtList" "$defaultOption"
+    elif [ -n "`echo "$txtList" | grep "|$tmpCho|"`" ]; then
+        rtnPrompt=`echo -e "$txtList" | grep "|$tmpCho|" | cut -d "|" -f 2`
     else
-        fnPrompt_fnAsk "$txtQuestion" "$defaultOption" "$optList" "$optDescribe"
+        fnPrompt_ask "$txtQuestion" "$txtList" "$defaultOption"
     fi
 }
 

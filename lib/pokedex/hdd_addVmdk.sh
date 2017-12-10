@@ -219,7 +219,7 @@ fnCheckExistFile() {
 
     if [ ${#warnList[@]} -ne 0 ]; then
         echo "以下文件已存在： ${warnList[@]}"
-        "$_libsh/basesh/prompt" "是否選擇覆蓋已存在文件" "[Yes|Y|yes|y]" "[No|N|no|n|*]"
+        "$_libsh/basesh/prompt" "是否選擇覆蓋已存在文件" "Yes|Y|yes|y" "No|N|no|n:*"
         if [ "`"$_libsh/basesh/prompt" rtnAnswer`" == "Yes" ]; then
             for val in ${warnList[@]}
             do
