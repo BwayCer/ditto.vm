@@ -17,9 +17,7 @@ putThroughTable="
 pkgs=`echo "
 [-] -------- createVmPass --- /bin/createVmPass ---------- $github_bwaycer_ditto/bin/createVmPass
 [Archen] --- - -------------- /lib/archlinuxInstallation/Archen_guide ----- $github_bwaycer_ditto/lib/archlinuxInstallation/Archen_guide
-[Archen] --- - -------------- /lib/archlinuxInstallation/cachePacmanPkg --- $github_bwaycer_ditto/lib/archlinuxInstallation/cachePacmanPkg
 [Lugia] ---- Lugia ---------- /lib/archlinuxInstallation/Lugia_os --------- $github_bwaycer_ditto/lib/archlinuxInstallation/Lugia_os
-[Togepi] --- - -------------- /lib/archlinuxInstallation/Togepi_os -------- $github_bwaycer_ditto/lib/archlinuxInstallation/Togepi_os
 [logsh] ---- logsh ---------- /lib/basesh/logsh ---------- $github_bwaycer_ditto/lib/basesh/logsh
 [logsh] ---- parseArgs ------ /lib/basesh/parseArgs ------ $github_bwaycer_ditto/lib/basesh/parseArgs
 [logsh] ---- - -------------- /lib/basesh/path.resolve --- $github_bwaycer_ditto/lib/basesh/path.resolve
@@ -98,8 +96,8 @@ fnMain() {
         fi
         fnCurl "$curlMethod" "$val"
     done
-    echo "$ sh $rtnCurl"
-    # sh "$rtnCurl"
+    echo -e "\e[01;33m$ sh \"$rtnCurl\"\e[00m"
+    sh "$rtnCurl"
 
     fnPrompt "是否刪除轉接之所有文件？" "Yes|yes|Y|y:*" "No|no|N|n"
     if [ "$rtnPrompt" == "Yes" ]; then
@@ -283,7 +281,7 @@ fnCurl() {
                 echo -e "\e[01;33m# \"$filePath\" 文件已存在\e[00m"
             else
                 echo -e "\e[01;33m$ curl \"$url\" > \"$filePath\"\e[00m"
-                # curl "$url" > "$filePath"
+                curl "$url" > "$filePath"
                 chmod 755 "$filePath"
             fi
 
