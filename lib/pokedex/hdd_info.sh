@@ -6,9 +6,10 @@
 # <name>   <size>   [<start>-<end>/<number>]   [ <start> - <end> / <grainSector> (<grainSize>) ]
 
 
-_dirsh=`dirname "$0"`
-_binsh=$_dirsh/../../bin
-_libsh=$_dirsh/..
+__filename=`realpath "$0"`
+_dirsh=`dirname "$__filename"`
+_binsh=`realpath "$_dirsh/../../bin"`
+_libsh=`realpath "$_dirsh/.."`
 _fileName=`basename "$0"`
 
 
