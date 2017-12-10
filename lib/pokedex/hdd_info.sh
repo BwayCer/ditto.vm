@@ -6,8 +6,11 @@
 # <name>   <size>   [<start>-<end>/<number>]   [ <start> - <end> / <grainSector> (<grainSize>) ]
 
 
-__dirname=`dirname $0`
-binDirPath="$__dirname"
+__filename=`realpath "$0"`
+_dirsh=`dirname "$__filename"`
+_binsh=`realpath "$_dirsh/../../bin"`
+_libsh=`realpath "$_dirsh/.."`
+_fileName=`basename "$0"`
 
 
 opt_update=0
@@ -47,7 +50,7 @@ fnMain() {
 }
 
 fnMainHandle() {
-    local vhddDirPath=`"$binDirPath/path.resolve" "$1"`
+    local vhddDirPath=`"$_libsh/basesh/path.resolve" "$1"`
 
 
     if [ ! -f "$vhddDirPath/info.txt" ]; then
@@ -58,7 +61,7 @@ fnMainHandle() {
 
 
     if [ $opt_update -eq 1 ] || [ ! -f "$vhddDirPath/.pokedex_hddInfo.tmp" ]; then
-        "$binDirPath/hdd_info_check" "$vhddDirPath"
+        "$_dirsh/hdd_info_check.sh" "$vhddDirPath"
         if [ $? -eq 1 ]; then exit 1; fi
     elif [ -n "`cat "$vhddDirPath/info.txt"`" ] && [ -z "`cat "$vhddDirPath/info.txt" | sed -n "1p" | grep "^# overdue"`" ]; then
         cat "$vhddDirPath/info.txt"
@@ -85,8 +88,8 @@ fnMainHandle() {
     amount=`         echo "$vhddInfoSummary" | cut -d " " -f 2`
     totalSize=`      echo "$vhddInfoSummary" | cut -d " " -f 4`
     totalGrainSizeM=`echo "$vhddInfoSummary" | cut -d " " -f 6`
-    totalSize=`      "$binDirPath/sizeUnit" $totalSize`
-    totalGrainSizeM=`"$binDirPath/sizeUnit" $(( $totalGrainSizeM * 1024 * 1024 ))`
+    totalSize=`      "$_dirsh/sizeUnit.sh" $totalSize`
+    totalGrainSizeM=`"$_dirsh/sizeUnit.sh" $(( $totalGrainSizeM * 1024 * 1024 ))`
     txtVhddInfoSummary="amount: $amount, totalSize: $totalSize, totalGrainSize: $totalGrainSizeM"
 
 
@@ -136,7 +139,7 @@ fnHandleVhddInfo() {
 
     for idx in `seq 1 $lenTxtVhddInfo`
     do
-        "$binDirPath/runingDot" $idx
+        "$_libsh/basesh/runingDot" $idx
 
         val=`echo -e "$txtVhddInfo" | sed -n "${idx}p"`
         numNumber=`    echo "$val" | cut -d " " -f 1`
@@ -188,8 +191,8 @@ fnResolveVhddInfo_record() {
     local recordEndGrainSizeM=$7
 
     local totalGrainSizeM=$(( $recordEndGrainSizeM - $recordStartGrainSizeM ))
-    local sizeUnit=`"$binDirPath/sizeUnit" $recordSize`
-    local totalGrainSizeUnit=`"$binDirPath/sizeUnit" $(( $totalGrainSizeM * 1024 * 1024 ))`
+    local sizeUnit=`"$_dirsh/sizeUnit.sh" $recordSize`
+    local totalGrainSizeUnit=`"$_dirsh/sizeUnit.sh" $(( $totalGrainSizeM * 1024 * 1024 ))`
 
     rtnHandleVhddInfo="$rtnHandleVhddInfo\n`printf "%s %s %s %s %s %s %s %s %s %s" \
         "$recordName" \

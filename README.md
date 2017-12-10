@@ -23,7 +23,7 @@
 
 
 
-## 創建虛擬硬碟
+## 創建虛擬機
 
 
 **執行命令：**
@@ -32,11 +32,11 @@
 ./bin/pokedex
 ```
 
-更多資訊請查看 [圖鑑](/Rotom/pokedex/README.md) 文件。
+更多資訊請查看 [圖鑑](/looseLeaf/pokedex.md) 文件。
 
 
 
-## 虛擬機作業系統及環境安裝
+## 作業系統及環境安裝
 
 
 **執行命令：**
@@ -51,6 +51,6 @@ curl -L https://goo.gl/Hr1uQx | sh
 
 
 * 主機文件
-  * [洛奇亞](/Ditto/Lugia.md)
-* [通用金鑰](/Rotom/vmpass.md)
+  * [洛奇亞](/looseLeaf/Lugia.md)
+* [通用金鑰](/looseLeaf/vmpass.md)
 

@@ -1,9 +1,9 @@
 #!/bin/bash
-# ArchLinux 安裝腳本
+# Archen Archlinux 安裝指南
 
 
-__dirname=`dirname $0`
-binDirPath="$__dirname"
+__dirname=`dirname "$0"`
+binDirPath=$__dirname
 
 
 opt_logfile=""

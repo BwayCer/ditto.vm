@@ -1,9 +1,11 @@
 #!/bin/bash
-# 洛奇亞 作業系統安裝腳本
+# 洛奇亞 作業系統安裝
 
 
-__dirname=`dirname $0`
-binDirPath="$__dirname"
+__dirname=`dirname "$0"`
+binDirPath=$__dirname
+
+logfilePath=$PWD/`basename "$0"`.log
 
 
 fnMain() {
@@ -25,14 +27,14 @@ fnMain() {
     fnRecordHistory sgdisk -n  4:23085056:27279359  -t 4:8300 /dev/sdb
 
     fnRecordHistory "$binDirPath/install_archlinux" \
-        --logfile Lugia_os.log \
+        --logfile $logfilePath \
         --exec handleGrain \
             /dev/sda1:ext4:/mnt           \
             /dev/sda2:vfat:/mnt/boot      \
-            /dev/sda3:ext4:/mnt/var/      \
+            /dev/sda3:ext4:/mnt/var       \
             /dev/sda4:ext4:/mnt/var/cache \
             /dev/sda5:ext4:/mnt/var/lib   \
-            /dev/sda6:ext4:/mnt/var/log/  \
+            /dev/sda6:ext4:/mnt/var/log   \
             /dev/sda7:ext4:/mnt/root      \
             /dev/sdb1:ext4:/mnt/home           \
             /dev/sdb3:ext4:/mnt/var/lib/docker \
@@ -45,15 +47,15 @@ fnMain() {
         fnRecordHistory tar -xvf "$tmp" -C /mnt/
     fi
 
-    fnRecordHistory "$binDirPath/install_archlinux" --logfile Lugia_os.log --exec showGrainInfo /dev/sda /dev/sdb
+    fnRecordHistory "$binDirPath/install_archlinux" --logfile $logfilePath --exec showGrainInfo /dev/sda /dev/sdb
 
-    fnRecordHistory "$binDirPath/install_archlinux" --logfile Lugia_os.log --exec handleMirrorList Taiwan
+    fnRecordHistory "$binDirPath/install_archlinux" --logfile $logfilePath --exec handleMirrorList Taiwan
 
     fnRecordHistory pacstrap /mnt base bash-completion vim
 
-    fnRecordHistory "$binDirPath/install_archlinux" --logfile Lugia_os.log --exec bootprogram /mnt /dev/sda1 uefi
+    fnRecordHistory "$binDirPath/install_archlinux" --logfile $logfilePath --exec bootprogram /mnt /dev/sda1 uefi
 
-    fnRecordHistory "$binDirPath/install_archlinux" --logfile Lugia_os.log --chroot /mnt pacman openssh
+    fnRecordHistory "$binDirPath/install_archlinux" --logfile $logfilePath --chroot /mnt pacman openssh
 }
 
 
@@ -67,7 +69,7 @@ fnRecordHistory() {
         fnRecordHistory_output i no $@
     fi
 }
-fnRecordHistory_logfile="Lugia_os.log"
+fnRecordHistory_logfile=$logfilePath
 fnRecordHistory_prefix="[`basename $0`]"
 fnRecordHistory_output() {
     local method=$1; shift

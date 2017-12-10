@@ -1,0 +1,98 @@
+#!/bin/bash
+# 選項提示
+
+
+## 提問
+# ./prompt 請選擇 "Yes|yes|Y|y:*:確定" "No|no|N|n::取消"
+# 請選擇 ( Yes: 確定 ; No: 取消 ) :
+
+## 回傳上一則對話的結果
+# ./prompt rtnAnswer
+
+
+fnMain() {
+    local recordFile=`dirname "$0"`"/.prompt.tmp"
+
+    if [ "$1" == "rtnAnswer" ]; then
+        if [ -f "$recordFile" ]; then
+            cat "$recordFile"
+            rm "$recordFile"
+        fi
+    else
+        if [ -f "$recordFile" ]; then rm "$recordFile"; fi
+        fnPrompt "$@"
+        echo "$rtnPrompt" > "$recordFile"
+    fi
+}
+
+
+rtnPrompt=""
+fnPrompt() {
+    local txtQuestion
+    txtQuestion=$1
+
+    local val describe
+    local option optionName optionDefault optionDescribe
+    local defaultOption txtList txtDescribe
+
+    txtList=""
+    defaultOption=""
+    txtDescribe=""
+
+    for val in "${@:1}"
+    do
+        if [ -z "`echo "$val" | grep "[A-Za-z0-9_-][A-Za-z0-9_|-]*\(:\*\?\)\?\(:.\*\)\?"`" ]; then continue; fi
+
+        option=`        echo ":$val"   | cut -d ":" -f 2`
+        optionName=`    echo "$option" | cut -d "|" -f 1`
+        optionDefault=` echo ":$val"   | cut -d ":" -f 3`
+        optionDescribe=`echo ":$val"   | cut -d ":" -f 4-`
+
+        describe=$optionName
+        if [ -n "$optionDescribe" ]; then
+            describe=$describe": "$optionDescribe
+        fi
+
+        txtList=$txtList"\n|$option|"
+
+        if [ "$optionDefault" == "*" ]; then
+            defaultOption="$optionName"
+            txtDescribe=$txtDescribe" \e[01;32m${describe} ;\e[00m"
+        else
+            txtDescribe=$txtDescribe" $describe ;"
+        fi
+    done
+
+    if [ -z "$txtList" ]; then
+        tmpErrMsg='[錯誤] 不符合預期的參數。 ($ ./prompt <問題> <選項 "[A-Za-z0-9_|-]*:\*\?:.*" ...>'
+        echo -e "\e[01;31m${tmpErrMsg}\e[00m"
+        exit 1
+    fi
+
+    fnPrompt_ask "$txtQuestion ($txtDescribe )" "$txtList" "$defaultOption"
+}
+fnPrompt_ask() {
+    local txtQuestion txtList defaultOption
+    txtQuestion=$1
+    txtList=$2
+    defaultOption=$3
+
+    local tmpCho
+
+    printf "$txtQuestion : "
+    read tmpCho
+
+    if [ -z "$tmpCho" ] && [ -n "$defaultOption" ]; then
+        rtnPrompt="$defaultOption"
+    elif [ -z "$tmpCho" ] || [ -n "`echo "$tmpCho" | grep "[^A-Za-z0-9_-]"`" ]; then
+        fnPrompt_ask "$txtQuestion" "$txtList" "$defaultOption"
+    elif [ -n "`echo "$txtList" | grep "|$tmpCho|"`" ]; then
+        rtnPrompt=`echo -e "$txtList" | grep "|$tmpCho|" | cut -d "|" -f 2`
+    else
+        fnPrompt_ask "$txtQuestion" "$txtList" "$defaultOption"
+    fi
+}
+
+
+fnMain "$@"
+

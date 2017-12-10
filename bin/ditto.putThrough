@@ -1,0 +1,295 @@
+#!/bin/bash
+# 腳本轉接
+
+
+curlPath="https://raw.githubusercontent.com/BwayCer/ditto.vm/Ditto/bin/ditto.putThrough"
+targetDirName=`basename "$curlPath"`.tmp
+targetFileName=`basename "$curlPath"`
+github_bwaycer_ditto="$github_bwaycer/ditto.vm/Ditto"
+putThroughTable="
+* createVmPass 通用金鑰
+  + createVmPass
+# 洛奇亞
+* Lugia_os 洛奇亞主機
+  + createVmPass [Archen] [Lugia] [logsh]
+  + Lugia
+"
+pkgs=`echo "
+[-] -------- createVmPass --- /bin/createVmPass ---------- $github_bwaycer_ditto/bin/createVmPass
+[Archen] --- - -------------- /lib/archlinuxInstallation/Archen_guide ----- $github_bwaycer_ditto/lib/archlinuxInstallation/Archen_guide
+[Lugia] ---- Lugia ---------- /lib/archlinuxInstallation/Lugia_os --------- $github_bwaycer_ditto/lib/archlinuxInstallation/Lugia_os
+[logsh] ---- logsh ---------- /lib/basesh/logsh ---------- $github_bwaycer_ditto/lib/basesh/logsh
+[logsh] ---- parseArgs ------ /lib/basesh/parseArgs ------ $github_bwaycer_ditto/lib/basesh/parseArgs
+[logsh] ---- - -------------- /lib/basesh/path.resolve --- $github_bwaycer_ditto/lib/basesh/path.resolve
+[logsh] ---- prompt --------- /lib/basesh/prompt --------- $github_bwaycer_ditto/lib/basesh/prompt
+[logsh] ---- - -------------- /lib/basesh/runingDot ------ $github_bwaycer_ditto/lib/basesh/runingDot
+" | sed "s/ ----* / /g"`
+
+
+__filename=`realpath "$0"`
+_dirsh=`dirname "$__filename"`
+_binsh=$_dirsh
+_libsh=`realpath "$_dirsh/../lib"`
+_fileName=`basename "$0"`
+rootDir=`realpath "$_dirsh/.."`
+
+if [ ! -f "$0" ] || [ "`cat "$0" | sed -n "2p"`" != "# 腳本轉接" ]; then
+    mkdir -p "$targetDirName/bin"
+    if [ ! -f "$targetDirName/bin/$targetFileName" ]; then
+        curl -L "$curlPath" >"$targetDirName/bin/$targetFileName"
+        chmod 755 "$targetDirName/bin/$targetFileName"
+    fi
+    exec sh "$targetDirName/bin/$targetFileName"
+    exit
+fi
+
+tmp=`dirname "$_dirsh"`
+if [ "`basename "$tmp"`" != "$targetDirName" ]; then
+    mkdir -p "$_dirsh/$targetDirName/bin"
+    mv "$0" "$_dirsh/$targetDirName/bin/$targetFileName"
+    exec sh "$_dirsh/$targetDirName/bin/$targetFileName"
+    exit
+fi
+if [ "`basename "$_dirsh"`" != "bin" ]; then
+    mkdir -p "$_dirsh/bin"
+    mv "$0" "$_dirsh/bin/$targetFileName"
+    exec sh "$_dirsh/bin/$targetFileName"
+    exit
+fi
+
+
+fnMain() {
+    local val table pickItem stateCode curlMethod addtional
+
+    table=`echo -e "$putThroughTable" | grep -n "^* " | sed "s/\(^[0-9]\+\):\*/\1/"`
+    table=`echo -e "$table" | grep -n "." | sed "s/^\([0-9]*\):\([0-9]*\)/\2 \1/"`
+
+    if [ -z "$table" ]; then
+        exitError 1 '找不到可接通項目。'
+    elif [ "`echo "$table" | wc -l`" -eq 1 ]; then
+        pickItem="$table"
+    else
+        fnChooseItem "$table"
+        pickItem=$(fnMatchTable 1 2,3 "$table" "$rtnChooseItem")
+        if [ -z "$pickItem" ]; then
+            exitError 1 '找不到接通項目。("'$rtnChooseItem'")'
+        fi
+    fi
+    echo "==> `echo "$pickItem" | cut -d " " -f 4`"
+    echo
+
+    for addtional in $(fnDepList "$putThroughTable" "$pickItem")
+    do
+        stateCode=0
+        if [ -n "`echo "$addtional" | grep "\[.*\]"`" ]; then
+            curlMethod=list
+            val=$(fnMatchTable 0 1 "$pkgs" "`echo "$addtional" | sed 's/^\[\(.*\)\]$/\\\[\1\\\]/'`")
+            if [ -z "$val" ]; then stateCode=1; fi
+        else
+            curlMethod=single
+            val=$(fnMatchTable 1 2 "$pkgs" "$addtional")
+            if [ -z "$val" ]; then stateCode=1; fi
+        fi
+        if [ $stateCode -ne 0 ]; then
+            exitError 0 '找不到接通項目。("'$addtional'")'
+            continue
+        fi
+        fnCurl "$curlMethod" "$val"
+    done
+    echo -e "\e[01;33m$ sh \"$rtnCurl\"\e[00m"
+    sh "$rtnCurl"
+
+    fnPrompt "是否刪除轉接之所有文件？" "Yes|yes|Y|y:*" "No|no|N|n"
+    if [ "$rtnPrompt" == "Yes" ]; then
+        rm -r "$rootDir"
+    fi
+}
+
+
+rtnPrompt=""
+fnPrompt() {
+    local txtQuestion
+    txtQuestion=$1
+
+    local val describe
+    local option optionName optionDefault optionDescribe
+    local defaultOption txtList txtDescribe
+
+    txtList=""
+    defaultOption=""
+    txtDescribe=""
+
+    for val in "${@:1}"
+    do
+        if [ -z "`echo "$val" | grep "[A-Za-z0-9_-][A-Za-z0-9_|-]*\(:\*\?\)\?\(:.\*\)\?"`" ]; then continue; fi
+
+        option=`        echo ":$val"   | cut -d ":" -f 2`
+        optionName=`    echo "$option" | cut -d "|" -f 1`
+        optionDefault=` echo ":$val"   | cut -d ":" -f 3`
+        optionDescribe=`echo ":$val"   | cut -d ":" -f 4-`
+
+        describe=$optionName
+        if [ -n "$optionDescribe" ]; then
+            describe=$describe": "$optionDescribe
+        fi
+
+        txtList=$txtList"\n|$option|"
+
+        if [ "$optionDefault" == "*" ]; then
+            defaultOption="$optionName"
+            txtDescribe=$txtDescribe" \e[01;32m${describe} ;\e[00m"
+        else
+            txtDescribe=$txtDescribe" $describe ;"
+        fi
+    done
+
+    if [ -z "$txtList" ]; then
+        exitError 1 '不符合預期的參數。 ($ ./prompt <問題> <選項 "[A-Za-z0-9_|-]*:\*\?:.*" ...>'
+    fi
+
+    fnPrompt_ask "$txtQuestion ($txtDescribe )" "$txtList" "$defaultOption"
+}
+fnPrompt_ask() {
+    local txtQuestion txtList defaultOption
+    txtQuestion=$1
+    txtList=$2
+    defaultOption=$3
+
+    local tmpCho
+
+    printf "$txtQuestion : "
+    read tmpCho
+
+    if [ -z "$tmpCho" ] && [ -n "$defaultOption" ]; then
+        rtnPrompt="$defaultOption"
+    elif [ -z "$tmpCho" ] || [ -n "`echo "$tmpCho" | grep "[^A-Za-z0-9_-]"`" ]; then
+        fnPrompt_ask "$txtQuestion" "$txtList" "$defaultOption"
+    elif [ -n "`echo "$txtList" | grep "|$tmpCho|"`" ]; then
+        rtnPrompt=`echo -e "$txtList" | grep "|$tmpCho|" | cut -d "|" -f 2`
+    else
+        fnPrompt_ask "$txtQuestion" "$txtList" "$defaultOption"
+    fi
+}
+
+exitError() {
+    local bisHasExit errMsg
+    bisHasExit=$1
+    errMsg=$2
+
+    echo -e "\e[01;31m[錯誤] ${errMsg}\e[00m" 1>&2
+    if [ $bisHasExit -eq 1 ]; then exit 1; fi
+}
+
+rtnChooseItem=""
+fnChooseItem() {
+    local table
+    table=$1
+
+    local tmpCho lenTable lenTableNumber lenTableName
+
+    lenTable=`echo -e "$table" | wc -l`
+    lenTableNumber=`echo -e "$table" | cut -d " " -f 2 | wc -L`
+    lenTableName=`  echo -e "$table" | cut -d " " -f 3 | wc -L`
+
+    echo -e "\n"
+    printf "\e[01;33m%${lenTableNumber}s\e[00m \e[01;33m%-${lenTableName}s\e[00m %s\n" \
+        `echo -e "$table" | cut -d " " -f 2,3,4`
+
+    printf "\e[$(( $lenTable + 1 ))A""請選擇接通項目： (ex: 1,2 or Name) \e[01;33m"
+    read -t 30 tmpCho
+    rtnChooseItem=$tmpCho
+
+    printf "\e[00m\e[$(( $lenTable ))B"
+    for loop in `seq 1 $lenTable`; do printf "\e[A\e[K"; done
+}
+
+fnMatchTable() {
+    local matchCount column table searchKey
+    matchCount=$1
+    pickColumn=$2
+    table=$3
+    searchKey=$4
+
+    local idx len matchList
+
+    matchList=`echo -e "$table" | cut -d " " -f $pickColumn`
+    matchList=(`echo -e "$matchList" | grep -n "$searchKey" | cut -d ":" -f 1`)
+
+    if [ $matchCount -eq 0 ] || [ $matchCount -gt ${#matchList[@]} ]; then
+        matchCount=${#matchList[@]}
+    fi
+
+    for (( idx=0 ; idx < $matchCount ; idx++ ))
+    do
+        echo -e "$table" | sed -n "${matchList[ $idx ]}p"
+    done
+}
+
+fnDepList() {
+    local putThroughTable pickItem
+    putThroughTable=$1
+    pickItem=$2
+
+    local idx val
+    local regexAddtional depList
+
+    idx=`echo "$pickItem" | cut -d " " -f 1`
+    regexAddtional="^  + \([][A-Za-z0-9_ -]\+\)$"
+    depList=""
+
+    while [ $idx ]
+    do
+        idx=$(( $idx + 1 ))
+        val=`echo -e "$putThroughTable" | sed -n "${idx}p"`
+
+        if [ -z "`echo "$val" | grep "$regexAddtional"`" ]; then break; fi
+
+        depList=$depList" "`echo "$val" | sed "s/$regexAddtional/\1/"`
+    done
+
+    echo "${depList:1}"
+}
+
+rtnCurl=""
+fnCurl() {
+    local method pkgInfo
+    method=$1
+    pkgInfo=$2
+
+    local len filePath url
+
+    if [ -z "$pkgInfo" ]; then return; fi
+    case $method in
+        list )
+            len=`echo -e "$pkgInfo" | wc -l`
+            for idx in `seq 1 $len`
+            do
+                fnCurl single "`echo -e "$pkgInfo" | sed -n "${idx}p"`"
+            done
+            ;;
+        single )
+            filePath=`echo "$pkgInfo" | cut -d " " -f 3`
+            url=`echo "$pkgInfo" | cut -d " " -f 4`
+
+            if [ ! -d "$rootDir/`dirname "$filePath"`" ]; then
+                mkdir -p "$rootDir/`dirname "$filePath"`"
+            fi
+
+            filePath=`realpath "$rootDir/$filePath"`
+
+            if [ -x "$filePath" ]; then
+                echo -e "\e[01;33m# \"$filePath\" 文件已存在\e[00m"
+            else
+                echo -e "\e[01;33m$ curl \"$url\" > \"$filePath\"\e[00m"
+                curl "$url" > "$filePath"
+                chmod 755 "$filePath"
+            fi
+
+            rtnCurl=$filePath
+            ;;
+    esac
+}
+
+
+fnMain "$@"
+
