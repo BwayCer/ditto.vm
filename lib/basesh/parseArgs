@@ -225,14 +225,17 @@ fnInfo() {
 
 
 fnAllowVal() {
-    local allowList maybeVal
+    local allowList maybeVal caseInsensitive
     allowList=`echo " "$1" "`
     maybeVal=$2
+    caseInsensitive=$3
 
-    if [ -n "`echo "$maybeVal" | grep "[^ ]\+"`" ] &&
-        [ -n "`echo "$allowList" | grep -i " $maybeVal "`" ]
-    then
-        echo `echo "$allowList" | sed "s/^.* \($maybeVal\) .*$/\1/i"`
+    if [ -z "`echo "$maybeVal" | grep " "`" ]; then
+        if [ "$caseInsensitive" != "1" ] && [ -n "`echo "$allowList" | grep " $maybeVal "`" ]; then
+            echo "$maybeVal"
+        elif [ -n "`echo "$allowList" | grep -i " $maybeVal "`" ]; then
+            echo "$allowList" | sed "s/^.* \($maybeVal\) .*$/\1/i"
+        fi
     fi
 }
 
