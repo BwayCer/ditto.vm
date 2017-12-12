@@ -98,8 +98,8 @@ fnMainHandle() {
         exit 1
     fi
 
-    local logId stamp
-    local recordMethod styleCode outputHead recordHead msg
+    local tmp logId stamp runCmd
+    local recordMethod exitCode styleCode outputHead recordHead msg
 
     if [ -z "$opt_recordMethod" ]; then
         recordMethod=er
@@ -110,6 +110,7 @@ fnMainHandle() {
     logId=$(fnRandom6c16)
     stamp="$nowTime $logId"
 
+    exitCode=0
     styleCode=0
     msg=$*
 
@@ -120,11 +121,16 @@ fnMainHandle() {
             recordHead=$rtnMsgHead_recordHead
             ;;
         "run" )
+            for tmp in "$@"
+            do
+                runCmd=$runCmd\'`echo "_$tmp" | sed "s/^_//" | sed "s/\([^\\]\)'/\1\\\\\'/"`\'' '
+            done
+
             stamp=`date "+%Y-%m-%d %H:%M:%S"`" $logId"
             fnMsgHead "$stamp" "$fileName" run
-            fnRecord $recordMethod "0" "$logFile" "$rtnMsgHead_outputHead" "$rtnMsgHead_recordHead" "\$ $*"
+            fnRecord $recordMethod "0" "$rtnMsgHead_outputHead" "$rtnMsgHead_recordHead" "\$ $*"
 
-            sh -c "$*" 2> $errMsgFile
+            sh -c "$runCmd" 2> "$errMsgFile"
             tmp=$?
             stamp=`date "+%Y-%m-%d %H:%M:%S"`" $logId"
             if [ $tmp -eq 0 ]; then
@@ -133,6 +139,7 @@ fnMainHandle() {
                 recordHead=$rtnMsgHead_recordHead
                 msg="日誌識別碼 \"$logId\" 已完成。"
             else
+                exitCode=1
                 styleCode="01;31"
                 fnMsgHead "$stamp" "$fileName" error
                 outputHead=$rtnMsgHead_outputHead
@@ -144,6 +151,7 @@ fnMainHandle() {
                     msg=$msg"\n"`cat "$errMsgFile"`
                 fi
             fi
+            rm "$errMsgFile"
             ;;
         "warn" )
             styleCode="01;33"
@@ -157,6 +165,7 @@ fnMainHandle() {
             recordHead=$rtnMsgHead_recordHead
             ;;
         "error" )
+            exitCode=1
             styleCode="01;31"
             fnMsgHead "$stamp" "$fileName" error
             outputHead=$rtnMsgHead_outputHead
@@ -165,7 +174,11 @@ fnMainHandle() {
     esac
 
     echo $logId > "$idFile"
-    fnRecord $recordMethod "$styleCode" "$logFile" "$outputHead" "$recordHead" "$msg"
+    fnRecord $recordMethod "$styleCode" "$outputHead" "$recordHead" "$msg"
+    if [ $exitCode -eq 1 ]; then
+        echo -e "\e[${styleCode}m請查看日誌識別碼 \"$logId\"\e[00m" 1>&2
+    fi
+    exit $exitCode
 }
 
 fnSubCmd() {
@@ -210,12 +223,12 @@ fnRandom6c16() {
 }
 
 fnRecord() {
-    local recordMethod="$1"
-    local styleCode="$2"
-    local logFile="$3"
-    local outputHead="$4"
-    local recordHead="$5"
-    local msg="$6"
+    local recordMethod styleCode outputHead recordHead msg
+    recordMethod=$1
+    styleCode=$2
+    outputHead=$3
+    recordHead=$4
+    msg=$5
 
     local txtOutput txtRecord
 
