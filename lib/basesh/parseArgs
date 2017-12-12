@@ -126,12 +126,11 @@ fnGetArgs() {
         fnShowHelp "$fnGetArgs_argsInfo" "" "$fnGetArgs_opt"
     fi
 
-    local targetFileName args
+    local targetFileName
 
     targetFileName=`basename "$targetPath"`
 
-    fnParseCommand "$targetPath" "" "$txtSubCmd_allowList" "$@"
-    if [ $? -ne 0 ]; then exit $?; fi
+    fnParseCommand "$targetPath" "" "$txtSubCmd_allowList" "$1"
     fnParseOption "$targetFileName" "" "$txtOpt_allowList" "$@"
     if [ $? -ne 0 ]; then exit $?; fi
 }
@@ -152,12 +151,11 @@ fnGetArgsRegex() {
         fnShowHelp "$fnGetArgsRegex_argsInfo" "$fnGetArgsRegex_subCmd" "$fnGetArgsRegex_opt"
     fi
 
-    local targetFileName args
+    local targetFileName
 
     targetFileName=`basename "$targetPath"`
 
-    fnParseCommand "$targetPath" "$txtSubCmd" "" "$@"
-    if [ $? -ne 0 ]; then exit $?; fi
+    fnParseCommand "$targetPath" "$txtSubCmd" "" "$1"
     fnParseOption "$targetFileName" "$txtOpt" "" "$@"
     if [ $? -ne 0 ]; then exit $?; fi
 }
@@ -244,9 +242,9 @@ fnParseCommand() {
     targetPath=$1
     txtSubCmd=$2
     allowList=$3
-    shift 3
+    maybeVal=$4
 
-    local targetDirPath targetFileName execCmd
+    local targetDirPath targetFileName
 
     targetDirPath=`dirname "$targetPath"`
     targetFileName=`basename "$targetPath"`
@@ -256,16 +254,9 @@ fnParseCommand() {
     fi
     if [ -z "$allowList" ]; then return; fi
 
-    execCmd=$(fnAllowVal "$allowList" "$1")
-
-    if [ -z "$execCmd" ]; then
-        return
-    elif [ -x "$targetDirPath/$execCmd" ]; then
-        echo "$targetDirPath/$execCmd"
+    if [ -n "$(fnAllowVal "$allowList" "$maybeVal")" ]; then
+        echo "$maybeVal"
         exit 2
-    else
-        echo '找不到子命令執行文件。 ('$targetDirPath/${targetFileName}_$execCmd')'
-        exit 1
     fi
 }
 
@@ -299,8 +290,7 @@ fnParseOption() {
     targetFileName=$1
     txtOpt=$2
     allowList=$3
-    shift 3
-    args=("$@")
+    args=("${@:4}")
 
     local opt val hasValCode txtArgs hasUsageWarn errMsg
 
