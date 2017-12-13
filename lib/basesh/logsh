@@ -3,7 +3,7 @@
 
 
 fnMain_argsInfo="<執行文件名稱>
-       <紀錄類型 txt|run|warn|finish|error> [紀錄參數 ...]"
+       <紀錄類型 txt|run|warn|finish|error> <紀錄參數>"
 fnMain_subCmd="
   tail     等同於 \`tail .logsh.log\`。
   less     等同於 \`less .logsh.log\`。
@@ -33,7 +33,6 @@ _fileName=`basename "$0"`
 
 logFile=$_dirsh/.logsh.log
 idFile=$_dirsh/.logsh.id.tmp
-errMsgFile=$_dirsh/.logsh.errMsg.tmp
 
 nowTime=`date "+%Y-%m-%d %H:%M:%S"`
 
@@ -89,17 +88,18 @@ fnMain() {
 }
 
 fnMainHandle() {
-    local fileName="$1"
-    local method="$2"
-    shift 2
+    local fileName method msg
+    fileName=$1
+    method=$2
+    msg=$3
 
     if [ -z "`echo "$fileName" | grep "[A-Za-z0-9_.-]"`" ]; then
         "$0" "$_fileName" error '只能使用 "A-Za-z0-9-_." 字符作為的文件名稱。 ('$fileName')'
         exit 1
     fi
 
-    local tmp logId stamp runCmd
-    local recordMethod exitCode styleCode outputHead recordHead msg
+    local tmp logId stamp errMsgFile
+    local recordMethod exitCode styleCode outputHead recordHead
 
     if [ -z "$opt_recordMethod" ]; then
         recordMethod=er
@@ -112,7 +112,6 @@ fnMainHandle() {
 
     exitCode=0
     styleCode=0
-    msg=$*
 
     case "$method" in
         "txt" )
@@ -121,16 +120,12 @@ fnMainHandle() {
             recordHead=$rtnMsgHead_recordHead
             ;;
         "run" )
-            for tmp in "$@"
-            do
-                runCmd=$runCmd\'`echo "_$tmp" | sed "s/^_//" | sed "s/\([^\\]\)'/\1\\\\\'/"`\'' '
-            done
-
             stamp=`date "+%Y-%m-%d %H:%M:%S"`" $logId"
             fnMsgHead "$stamp" "$fileName" run
-            fnRecord $recordMethod "0" "$rtnMsgHead_outputHead" "$rtnMsgHead_recordHead" "\$ $*"
+            fnRecord $recordMethod "0" "$rtnMsgHead_outputHead" "$rtnMsgHead_recordHead" "\$ $msg"
 
-            sh -c "$runCmd" 2> "$errMsgFile"
+            errMsgFile=$_dirsh/.logsh.errMsg_${logId}.tmp
+            sh -c "$msg" 2> "$errMsgFile"
             tmp=$?
             stamp=`date "+%Y-%m-%d %H:%M:%S"`" $logId"
             if [ $tmp -eq 0 ]; then
@@ -145,10 +140,11 @@ fnMainHandle() {
                 outputHead=$rtnMsgHead_outputHead
                 recordHead=$rtnMsgHead_recordHead
                 msg="日誌識別碼 \"$logId\" 執行失敗， 訊息："
-                if [ `cat "$errMsgFile" | wc -l` -eq 0 ]; then
+                tmp=`cat "$errMsgFile" | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g"`
+                if [ -z "$tmp" ]; then
                     msg=$msg" 無。"
                 else
-                    msg=$msg"\n"`cat "$errMsgFile"`
+                    msg=$msg"\n$tmp"
                 fi
             fi
             rm "$errMsgFile"
@@ -176,7 +172,8 @@ fnMainHandle() {
     echo $logId > "$idFile"
     fnRecord $recordMethod "$styleCode" "$outputHead" "$recordHead" "$msg"
     if [ $exitCode -eq 1 ]; then
-        echo -e "\e[${styleCode}m請查看日誌識別碼 \"$logId\"\e[00m" 1>&2
+        echo -e "\e[${styleCode}m錯誤日誌識別碼 \"$logId\"\e[00m" 1>&2
+        echo -e "\e[${styleCode}m請查看 \`$__filename grep $logId\`\e[00m"
     fi
     exit $exitCode
 }

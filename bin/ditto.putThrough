@@ -5,6 +5,7 @@
 curlPath="https://raw.githubusercontent.com/BwayCer/ditto.vm/Ditto/bin/ditto.putThrough"
 targetDirName=`basename "$curlPath"`.tmp
 targetFileName=`basename "$curlPath"`
+github_bwaycer="https://raw.githubusercontent.com/BwayCer"
 github_bwaycer_ditto="$github_bwaycer/ditto.vm/Ditto"
 putThroughTable="
 * createVmPass 通用金鑰

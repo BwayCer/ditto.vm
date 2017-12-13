@@ -21,7 +21,15 @@ _binsh=`realpath "$_dirsh/../../bin"`
 _libsh=`realpath "$_dirsh/.."`
 _fileName=`basename "$0"`
 _logsh() {
-    "$_libsh/basesh/logsh" -- "$_fileName" "$@"
+    local val msg
+    for val in "${@:2}"
+    do
+        if [ -n "`echo "_$val" | grep " "`" ]; then
+            val='"'`echo "_$val" | sed "s/^_//" | sed 's/\([^\\]\)"/\1\\\"/g'`'"'
+        fi
+        msg=$msg"$val "
+    done
+    "$_libsh/basesh/logsh" -- "$_fileName" "$1" "$msg"
     if [ $? -eq 1 ]; then exit 1; fi
     return $?
 }
@@ -94,7 +102,7 @@ fnMainHandle() {
     fi
 
     if [ -n "$opt_chroot" ]; then
-        fnArchChroot "$opt_chroot" $execFunc "$@"
+        fnArchChroot "$opt_chroot" $chooseFunc "$@"
     else
         $execFunc "$@"
     fi
@@ -130,7 +138,7 @@ fnArchChroot() {
     lenLogFile=`cat "$rootDir/$logshLogRelativePath" | wc -l`
 
     _logsh run cp -r "$rootDir" "$mainMount/$isoRunDir"
-    _logsh run echo "sh $isoRunFile --exec $runArgu" "|" arch-chroot "$mainMount"
+    _logsh run echo "sh $isoRunFile $runArgu" "|" arch-chroot "$mainMount"
     _logsh run \
         tail -n $(( `cat "$mainMount/$isoLogFile" | wc -l` - $lenLogFile )) \
         "$mainMount/$isoLogFile" \
@@ -164,7 +172,7 @@ fnHandleGrain() {
         mkfsCmd=`  echo "$val" | cut -d ":" -f 2`
         mountPath=`echo "$val" | cut -d ":" -f 3`
 
-        tmp=$(fnAllowVal "$mkfsList" "fn$choCmd" 1)
+        tmp=$(fnAllowVal "$mkfsList" "$mkfsCmd")
         if [ -n "$tmp" ]; then
             mkfsCmd=mkfs.$tmp
         fi
@@ -186,15 +194,17 @@ fnHandleMirrorList() {
     local mirrorArea
     mirrorArea=$1
 
-    if [ ! -f "/etc/pacman.d/mirrorlist" ]; then
-        _logsh error '鏡像表文件不存在。 (/etc/pacman.d/mirrorlist)'
+    local mirrorFile mirrorList serverList deleteList
+    local lineNumber newMirrorList
+
+    mirrorFile=/etc/pacman.d/mirrorlist
+
+    if [ ! -f "$mirrorFile" ]; then
+        _logsh error '鏡像表文件不存在。 ('$mirrorFile')'
         exit 1
     fi
 
-    local mirrorList serverList deleteList
-    local lineNumber newMirrorList
-
-    mirrorList=`cat /etc/pacman.d/mirrorlist`
+    mirrorList=`cat $mirrorFile`
     serverList=`echo -e "$mirrorList" | grep -n -B 1 "^Server = http" | grep "^[0-9]*-"`
 
     if [ -z "`echo -e "$serverList" | grep -i "$mirrorArea"`" ]; then
@@ -210,8 +220,8 @@ fnHandleMirrorList() {
         newMirrorList=`echo -e "$newMirrorList" | sed "$lineNumber,$(( $lineNumber + 1 ))d"`
     done
 
-    _logsh run echo -e "$newMirrorList" ">" /etc/pacman.d/mirrorlist
-    _logsh run cat /etc/pacman.d/mirrorlist
+    _logsh run echo "`echo "$newMirrorList" | sed 's/\$\(\w\)/\\\\$\1/g'`" ">" $mirrorFile
+    _logsh run cat $mirrorFile
 }
 
 fnBootProgram() {

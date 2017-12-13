@@ -13,8 +13,7 @@ fnMain_opt="
   -h, --help   幫助。
 "
 fnMain_subCmd_allowList="
- showHelp getArgs
- getArgsRegex info
+ showHelp getArgs getArgsRegex info
 "
 fnMain_opt_allowList=""
 fnMain() {

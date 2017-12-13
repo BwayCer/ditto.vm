@@ -8,11 +8,15 @@ _binsh=`realpath "$_dirsh/../../bin"`
 _libsh=`realpath "$_dirsh/.."`
 _fileName=`basename "$0"`
 _logsh() {
-    if [ "$2" == "$_dirsh/Archen_guide" ]; then
-        "$_libsh/basesh/logsh" -- "$_fileName" "$@"
-    else
-        echo "$_libsh/basesh/logsh" -- "$_fileName" "$@"
-    fi
+    local val msg
+    for val in "${@:2}"
+    do
+        if [ -n "`echo "_$val" | grep " "`" ]; then
+            val='"'`echo "_$val" | sed "s/^_//" | sed 's/\([^\\]\)"/\1\\\"/g'`'"'
+        fi
+        msg=$msg"$val "
+    done
+    "$_libsh/basesh/logsh" -- "$_fileName" "$1" "$msg"
     if [ $? -eq 1 ]; then exit 1; fi
     return $?
 }
@@ -43,8 +47,8 @@ fnMain() {
         /dev/sda6:ext4:/mnt/var/log   \
         /dev/sda7:ext4:/mnt/root      \
         /dev/sdb1:ext4:/mnt/home           \
-        /dev/sdb3:ext4:/mnt/var/lib/docker \
         /dev/sdb2:ext4:/mnt/srv            \
+        /dev/sdb3:ext4:/mnt/var/lib/docker \
         /dev/sdb4:ext4:/mnt/var/www
 
     ls /home/cachePacmanPkg-v4.*.tar > /dev/null 2>&1
