@@ -3,19 +3,22 @@
 
 
 fnMain_argsInfo="<執行文件名稱>
-       <紀錄類型 txt|run|warn|finish|error> [紀錄參數 ...]"
-fnMain_subCmd=""
+       <紀錄類型 txt|run|warn|finish|error> <紀錄參數>"
+fnMain_subCmd="
+  tail     等同於 \`tail .logsh.log\`。
+  less     等同於 \`less .logsh.log\`。
+  grep     等同於 \`grep .logsh.log\`。
+  getid    取得上一筆日誌識別碼。
+"
 fnMain_opt="
-  -t, --tail     等同於 \`tail $logFile\`。
-      --getid    取得上一筆日誌識別碼。
   -e, --echo     只顯示於終端機上， 不記錄。
   -r, --record   只記錄於日誌中， 不顯示。
   -h, --help     幫助。
 "
-fnMain_subCmd_allowList=""
+fnMain_subCmd_allowList="
+ tail less grep getid
+"
 fnMain_opt_allowList="
- -t --tail 0
-  --getid 0
  -e --echo 0
  -r --record 0
  -h --help 0
@@ -30,17 +33,14 @@ _fileName=`basename "$0"`
 
 logFile=$_dirsh/.logsh.log
 idFile=$_dirsh/.logsh.id.tmp
-errMsgFile=$_dirsh/.logsh.errMsg.tmp
 
 nowTime=`date "+%Y-%m-%d %H:%M:%S"`
 
 
-opt_tail=0
-opt_getid=0
 opt_recordMethod=""
 
 fnMain() {
-    local tmp
+    local tmp opt val
 
     tmp=`"$_dirsh/parseArgs" getArgs "$0" \
         "$fnMain_subCmd_allowList" "$fnMain_opt_allowList" "$@"`
@@ -49,8 +49,8 @@ fnMain() {
             eval set -- "$tmp"
             ;;
         2 )
-            shift
-            exec "$tmp" "$@"
+            fnSubCmd "$@"
+            exit
             ;;
         3 )
             "$_dirsh/parseArgs" showHelp "$fnMain_argsInfo" "$fnMain_subCmd" "$fnMain_opt"
@@ -62,8 +62,6 @@ fnMain() {
             ;;
     esac
 
-    local opt val tmp
-
     while [ -n 1 ]
     do
         opt=$1
@@ -74,15 +72,7 @@ fnMain() {
             break
         fi
 
-        case "$opt" in
-            -t | --tail )
-                shift
-                opt_tail=1
-                ;;
-            --getid )
-                shift
-                opt_getid=1
-                ;;
+        case $opt in
             -e | --echo )
                 shift
                 opt_recordMethod=$opt_recordMethod"e"
@@ -98,32 +88,18 @@ fnMain() {
 }
 
 fnMainHandle() {
-    if [ $opt_tail -eq 1 ]; then
-        tail "$@" "$logFile"
-        exit $?
-    fi
-
-    if [ $opt_getid -eq 1 ]; then
-        if [ -f "$idFile" ]; then
-            cat "$idFile"
-            rm "$idFile"
-            exit
-        else
-            exit 1
-        fi
-    fi
-
-    local fileName="$1"
-    local method="$2"
-    shift 2
+    local fileName method msg
+    fileName=$1
+    method=$2
+    msg=$3
 
     if [ -z "`echo "$fileName" | grep "[A-Za-z0-9_.-]"`" ]; then
         "$0" "$_fileName" error '只能使用 "A-Za-z0-9-_." 字符作為的文件名稱。 ('$fileName')'
         exit 1
     fi
 
-    local logId stamp
-    local recordMethod styleCode outputHead recordHead msg
+    local tmp logId stamp errMsgFile
+    local recordMethod exitCode styleCode outputHead recordHead
 
     if [ -z "$opt_recordMethod" ]; then
         recordMethod=er
@@ -134,8 +110,8 @@ fnMainHandle() {
     logId=$(fnRandom6c16)
     stamp="$nowTime $logId"
 
+    exitCode=0
     styleCode=0
-    msg=$*
 
     case "$method" in
         "txt" )
@@ -146,9 +122,10 @@ fnMainHandle() {
         "run" )
             stamp=`date "+%Y-%m-%d %H:%M:%S"`" $logId"
             fnMsgHead "$stamp" "$fileName" run
-            fnRecord $recordMethod "0" "$logFile" "$rtnMsgHead_outputHead" "$rtnMsgHead_recordHead" "\$ $*"
+            fnRecord $recordMethod "0" "$rtnMsgHead_outputHead" "$rtnMsgHead_recordHead" "\$ $msg"
 
-            sh -c "$*" 2> $errMsgFile
+            errMsgFile=$_dirsh/.logsh.errMsg_${logId}.tmp
+            sh -c "$msg" 2> "$errMsgFile"
             tmp=$?
             stamp=`date "+%Y-%m-%d %H:%M:%S"`" $logId"
             if [ $tmp -eq 0 ]; then
@@ -157,17 +134,20 @@ fnMainHandle() {
                 recordHead=$rtnMsgHead_recordHead
                 msg="日誌識別碼 \"$logId\" 已完成。"
             else
+                exitCode=1
                 styleCode="01;31"
                 fnMsgHead "$stamp" "$fileName" error
                 outputHead=$rtnMsgHead_outputHead
                 recordHead=$rtnMsgHead_recordHead
                 msg="日誌識別碼 \"$logId\" 執行失敗， 訊息："
-                if [ `cat "$errMsgFile" | wc -l` -eq 0 ]; then
+                tmp=`cat "$errMsgFile" | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g"`
+                if [ -z "$tmp" ]; then
                     msg=$msg" 無。"
                 else
-                    msg=$msg"\n"`cat "$errMsgFile"`
+                    msg=$msg"\n$tmp"
                 fi
             fi
+            rm "$errMsgFile"
             ;;
         "warn" )
             styleCode="01;33"
@@ -181,6 +161,7 @@ fnMainHandle() {
             recordHead=$rtnMsgHead_recordHead
             ;;
         "error" )
+            exitCode=1
             styleCode="01;31"
             fnMsgHead "$stamp" "$fileName" error
             outputHead=$rtnMsgHead_outputHead
@@ -189,7 +170,45 @@ fnMainHandle() {
     esac
 
     echo $logId > "$idFile"
-    fnRecord $recordMethod "$styleCode" "$logFile" "$outputHead" "$recordHead" "$msg"
+    fnRecord $recordMethod "$styleCode" "$outputHead" "$recordHead" "$msg"
+    if [ $exitCode -eq 1 ]; then
+        echo -e "\e[${styleCode}m錯誤日誌識別碼 \"$logId\"\e[00m" 1>&2
+        echo -e "\e[${styleCode}m請查看 \`$__filename grep $logId\`\e[00m"
+    fi
+    exit $exitCode
+}
+
+fnSubCmd() {
+    local subcmd
+    subcmd=$1
+    shift
+
+    case $subcmd in
+        tail )
+            tail "$@" "$logFile"
+            exit $?
+            ;;
+        less )
+            less "$@" "$logFile"
+            exit $?
+            ;;
+        grep )
+            grep --color "$@" "$logFile"
+            exit $?
+            ;;
+        getid )
+            if [ -f "$idFile" ]; then
+                cat "$idFile"
+                rm "$idFile"
+                exit
+            else
+                exit 1
+            fi
+            ;;
+        * )
+            exit 1
+            ;;
+    esac
 }
 
 
@@ -201,12 +220,12 @@ fnRandom6c16() {
 }
 
 fnRecord() {
-    local recordMethod="$1"
-    local styleCode="$2"
-    local logFile="$3"
-    local outputHead="$4"
-    local recordHead="$5"
-    local msg="$6"
+    local recordMethod styleCode outputHead recordHead msg
+    recordMethod=$1
+    styleCode=$2
+    outputHead=$3
+    recordHead=$4
+    msg=$5
 
     local txtOutput txtRecord
 

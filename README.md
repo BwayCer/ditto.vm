@@ -42,7 +42,7 @@
 **執行命令：**
 
 ```
-curl -L https://goo.gl/Hr1uQx | sh
+sh -c "`curl -L https://goo.gl/i4bseq`"
 ```
 
 
