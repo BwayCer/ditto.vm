@@ -11,14 +11,20 @@ putThroughTable="
 * createVmPass 通用金鑰
   + createVmPass
 # 洛奇亞
-* Lugia_os 洛奇亞主機
+* Lugia_os 洛奇亞作業系統安裝
   + createVmPass [Archen] [Lugia] [logsh]
   + Lugia
+# 波克比
+* Togepi_os 波克比作業系統安裝
+  + createVmPass [Archen] [Togepi] [logsh]
+  + Togepi
+lib/archlinuxInstallation/Togepi_os
 "
 pkgs=`echo "
 [-] -------- createVmPass --- /bin/createVmPass ---------- $github_bwaycer_ditto/bin/createVmPass
 [Archen] --- - -------------- /lib/archlinuxInstallation/Archen_guide ----- $github_bwaycer_ditto/lib/archlinuxInstallation/Archen_guide
 [Lugia] ---- Lugia ---------- /lib/archlinuxInstallation/Lugia_os --------- $github_bwaycer_ditto/lib/archlinuxInstallation/Lugia_os
+[Togepi] ---- Togepi -------- /lib/archlinuxInstallation/Togepi_os --------- $github_bwaycer_ditto/lib/archlinuxInstallation/Togepi_os
 [logsh] ---- logsh ---------- /lib/basesh/logsh ---------- $github_bwaycer_ditto/lib/basesh/logsh
 [logsh] ---- parseArgs ------ /lib/basesh/parseArgs ------ $github_bwaycer_ditto/lib/basesh/parseArgs
 [logsh] ---- - -------------- /lib/basesh/path.resolve --- $github_bwaycer_ditto/lib/basesh/path.resolve
