@@ -10,6 +10,10 @@ github_bwaycer_ditto="$github_bwaycer/ditto.vm/Ditto"
 putThroughTable="
 * createVmPass 通用金鑰
   + createVmPass
+# 圖圖犬
+* Smeargle_os 圖圖狗作業系統安裝
+  + createVmPass [Archen] [Smeargle] [logsh]
+  + Smeargle
 # 洛奇亞
 * Lugia_os 洛奇亞作業系統安裝
   + createVmPass [Archen] [Lugia] [logsh]
@@ -22,6 +26,7 @@ putThroughTable="
 pkgs=`echo "
 [-] -------- createVmPass --- /bin/createVmPass ---------- $github_bwaycer_ditto/bin/createVmPass
 [Archen] --- - -------------- /lib/archlinuxInstallation/Archen_guide.sh ----- $github_bwaycer_ditto/lib/archlinuxInstallation/Archen_guide.sh
+[Smeargle] ---- Smeargle ---------- /lib/archlinuxInstallation/Smeargle_os.sh --------- $github_bwaycer_ditto/lib/archlinuxInstallation/Smeargle_os.sh
 [Lugia] ---- Lugia ---------- /lib/archlinuxInstallation/Lugia_os.sh --------- $github_bwaycer_ditto/lib/archlinuxInstallation/Lugia_os.sh
 [Togepi] ---- Togepi -------- /lib/archlinuxInstallation/Togepi_os.sh --------- $github_bwaycer_ditto/lib/archlinuxInstallation/Togepi_os.sh
 [logsh] ---- logsh ---------- /lib/basesh/logsh ---------- $github_bwaycer_ditto/lib/basesh/logsh

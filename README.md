@@ -52,6 +52,7 @@ sh -c "`curl -L https://goo.gl/i4bseq`"
 
 * 主機文件
   * [始祖小鳥](/looseLeaf/Archen.md)
+  * [圖圖犬](/looseLeaf/Smeargle.md)
   * [洛奇亞](/looseLeaf/Lugia.md)
   * [波克比](/looseLeaf/Togepi.md)
 * [通用金鑰](/looseLeaf/vmpass.md)
