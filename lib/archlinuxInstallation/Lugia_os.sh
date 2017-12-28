@@ -38,7 +38,7 @@ fnMain() {
     _logsh run sgdisk -n  3:16793600:23085055  -t 3:8300 /dev/sdb
     _logsh run sgdisk -n  4:23085056:27279359  -t 4:8300 /dev/sdb
 
-    _logsh run "$_dirsh/Archen_guide" handleGrain \
+    _logsh run "$_dirsh/Archen_guide.sh" handleGrain \
         /dev/sda1:ext4:/mnt           \
         /dev/sda2:vfat:/mnt/boot      \
         /dev/sda3:ext4:/mnt/var       \
@@ -58,15 +58,15 @@ fnMain() {
             -C /mnt/
     fi
 
-    _logsh run "$_dirsh/Archen_guide" showGrainInfo /dev/sda /dev/sdb
+    _logsh run "$_dirsh/Archen_guide.sh" showGrainInfo /dev/sda /dev/sdb
 
-    _logsh run "$_dirsh/Archen_guide" handleMirrorList Taiwan
+    _logsh run "$_dirsh/Archen_guide.sh" handleMirrorList Taiwan
 
     _logsh run pacstrap /mnt base bash-completion vim
 
-    _logsh run "$_dirsh/Archen_guide" bootprogram /mnt /dev/sda1 uefi
+    _logsh run "$_dirsh/Archen_guide.sh" bootprogram /mnt /dev/sda1 uefi
 
-    _logsh run "$_dirsh/Archen_guide" --chroot /mnt pacman openssh
+    _logsh run "$_dirsh/Archen_guide.sh" --chroot /mnt pacman openssh
 }
 
 
