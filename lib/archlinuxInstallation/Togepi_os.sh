@@ -24,24 +24,23 @@ _logsh() {
 
 fnMain() {
     _logsh run sgdisk --zap-all --clear --mbrtogpt /dev/sda
-    _logsh run sgdisk -n     1:16384:10502143  -t 1:8300  /dev/sda
-    _logsh run sgdisk -n  2:10502144:11026431  -t 2:EF00  /dev/sda
-    _logsh run sgdisk -n  3:11026432:13123583  -t 3:8300  /dev/sda
-    _logsh run sgdisk -n  4:13123584:15220735  -t 4:8300  /dev/sda
-    _logsh run sgdisk -n  5:15220736:19415039  -t 5:8300  /dev/sda
-    _logsh run sgdisk -n  6:19415040:31997951  -t 6:8300  /dev/sda
-    _logsh run sgdisk -n  7:31997952:32522239  -t 7:8300  /dev/sda
-    _logsh run sgdisk -n  8:32522240:32784383  -t 8:8300  /dev/sda
+    _logsh run sgdisk -n     1:16384:12599295  -t 1:8300  /dev/sda
+    _logsh run sgdisk -n  2:12599296:13123583  -t 2:EF00  /dev/sda
+    _logsh run sgdisk -n  3:13123584:15220735  -t 3:8300  /dev/sda
+    _logsh run sgdisk -n  4:15220736:19415039  -t 4:8300  /dev/sda
+    _logsh run sgdisk -n  5:19415040:31997951  -t 5:8300  /dev/sda
+    _logsh run sgdisk -n  6:31997952:32522239  -t 6:8300  /dev/sda
+    _logsh run sgdisk -n  7:32522240:32784383  -t 7:8300  /dev/sda
 
     _logsh run "$_dirsh/Archen_guide.sh" handleGrain \
         /dev/sda1:ext4:/mnt           \
         /dev/sda2:vfat:/mnt/boot      \
-        /dev/sda3:ext4:/mnt/opt       \
-        /dev/sda4:ext4:/mnt/var       \
-        /dev/sda5:ext4:/mnt/var/cache \
-        /dev/sda6:ext4:/mnt/var/lib   \
-        /dev/sda7:ext4:/mnt/var/log   \
-        /dev/sda8:ext4:/mnt/root
+        /dev/sda3:ext4:/mnt/var       \
+        /dev/sda4:ext4:/mnt/var/cache \
+        /dev/sda5:ext4:/mnt/var/lib   \
+        /dev/sda6:ext4:/mnt/var/log   \
+        /dev/sda7:ext4:/mnt/root
+
 
     ls /home/cachePacmanPkg-v4.*.tar > /dev/null 2>&1
     if [ $? -eq 0 ]; then
