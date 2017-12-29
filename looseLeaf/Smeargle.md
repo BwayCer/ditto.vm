@@ -24,7 +24,7 @@
 
 
 ```sh
-./bin/hdd add Smeargle \
+./pokedex/hdd.sh add Smeargle \
                  GPT:0008:1   \
                      0128:48  \
                 boot:0128:2   \
@@ -35,7 +35,7 @@
                 root:0128:1   \
                  GPT:0008:999:1
 
-# ./bin/hdd info Smeargle
+# ./pokedex/hdd.sh info Smeargle
 amount: 127, totalSize: 7.9M, totalGrainSize: 15.64G
 
 GPT       (0008)   64.0K   [  1-  1/  1]   [        0 -    16383 /    16384 (  8.0M) ]

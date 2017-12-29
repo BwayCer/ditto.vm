@@ -23,7 +23,7 @@
 
 
 ```sh
-./bin/hdd add Lugia_host \
+./pokedex/hdd.sh add Lugia_host \
                  GPT:0008:1   \
                      0128:48  \
                 boot:0128:2   \
@@ -34,7 +34,7 @@
                 root:0128:1   \
                  GPT:0008:999:1
 
-# ./bin/hdd info Lugia_host
+# ./pokedex/hdd.sh info Lugia_host
 # amount: 127, totalSize: 7.9M, totalGrainSize: 15.64G
 #
 # GPT       (0008)   64.0K   [  1-  1/  1]   [        0 -    16383 /    16384 (  8.0M) ]
@@ -49,7 +49,7 @@
 ```
 
 ```sh
-./bin/hdd add Lugia_principal \
+./pokedex/hdd.sh add Lugia_principal \
                  GPT:0008:1   \
                 home:0128:16  \
       var_lib_docker:0128:48  \
@@ -57,7 +57,7 @@
              var_www:0128:16  \
                  GPT:0008:999:1
 
-# ./bin/hdd info Lugia_principal
+# ./pokedex/hdd.sh info Lugia_principal
 # amount: 106, totalSize: 6.6M, totalGrainSize: 13.01G
 #
 # GPT            (0008)  64.0K   [  1-  1/  1]   [        0 -    16383 /    16384 ( 8.0M) ]

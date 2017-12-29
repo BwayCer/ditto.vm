@@ -23,7 +23,7 @@
 
 
 ```sh
-./bin/hdd add Togepi \
+./pokedex/hdd.sh add Togepi \
                  GPT:0008:1   \
                      0128:40  \
                 boot:0128:2   \
@@ -35,7 +35,7 @@
                 root:0128:1   \
                  GPT:0008:999:1
 
-# ./bin/hdd info Togepi
+# ./pokedex/hdd.sh info Togepi
 # amount: 127, totalSize: 7.9M, totalGrainSize: 15.64G
 #
 # GPT       (0008)   64.0K   [  1-  1/  1]   [        0 -    16383 /    16384 (  8.0M) ]
