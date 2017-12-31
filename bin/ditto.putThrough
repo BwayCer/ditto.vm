@@ -24,16 +24,16 @@ putThroughTable="
   + Togepi
 "
 pkgs=`echo "
-[-] -------- createVmPass --- /bin/createVmPass ---------- $github_bwaycer_ditto/bin/createVmPass
-[Archen] --- - -------------- /lib/archlinuxInstallation/Archen_guide.sh ----- $github_bwaycer_ditto/lib/archlinuxInstallation/Archen_guide.sh
-[Smeargle] ---- Smeargle ---------- /lib/archlinuxInstallation/Smeargle_os.sh --------- $github_bwaycer_ditto/lib/archlinuxInstallation/Smeargle_os.sh
-[Lugia] ---- Lugia ---------- /lib/archlinuxInstallation/Lugia_os.sh --------- $github_bwaycer_ditto/lib/archlinuxInstallation/Lugia_os.sh
-[Togepi] ---- Togepi -------- /lib/archlinuxInstallation/Togepi_os.sh --------- $github_bwaycer_ditto/lib/archlinuxInstallation/Togepi_os.sh
-[logsh] ---- logsh ---------- /lib/basesh/logsh ---------- $github_bwaycer_ditto/lib/basesh/logsh
-[logsh] ---- parseArgs ------ /lib/basesh/parseArgs ------ $github_bwaycer_ditto/lib/basesh/parseArgs
-[logsh] ---- - -------------- /lib/basesh/path.resolve --- $github_bwaycer_ditto/lib/basesh/path.resolve
-[logsh] ---- prompt --------- /lib/basesh/prompt --------- $github_bwaycer_ditto/lib/basesh/prompt
-[logsh] ---- - -------------- /lib/basesh/runingDot ------ $github_bwaycer_ditto/lib/basesh/runingDot
+[-] ---------- createVmPass --- /bin/createVmPass ----------- $github_bwaycer_ditto/bin/createVmPass
+[Archen] ----- - -------------- /lib/archlinuxInstallation/Archen_guide.sh --- $github_bwaycer_ditto/lib/archlinuxInstallation/Archen_guide.sh
+[Smeargle] --- Smeargle ------- /lib/archlinuxInstallation/Smeargle_os.sh ---- $github_bwaycer_ditto/lib/archlinuxInstallation/Smeargle_os.sh
+[Lugia] ------ Lugia ---------- /lib/archlinuxInstallation/Lugia_os.sh ------- $github_bwaycer_ditto/lib/archlinuxInstallation/Lugia_os.sh
+[Togepi] ----- Togepi --------- /lib/archlinuxInstallation/Togepi_os.sh ------ $github_bwaycer_ditto/lib/archlinuxInstallation/Togepi_os.sh
+[logsh] ------ logsh ---------- /lib/basesh/logsh ----------- $github_bwaycer_ditto/lib/basesh/logsh
+[logsh] ------ parseArgs ------ /lib/basesh/parseArgs ------- $github_bwaycer_ditto/lib/basesh/parseArgs
+[logsh] ------ - -------------- /lib/basesh/path.resolve ---- $github_bwaycer_ditto/lib/basesh/path.resolve
+[logsh] ------ prompt --------- /lib/basesh/prompt ---------- $github_bwaycer_ditto/lib/basesh/prompt
+[logsh] ------ - -------------- /lib/basesh/runingDot ------- $github_bwaycer_ditto/lib/basesh/runingDot
 " | sed "s/ ----* / /g"`
 
 
