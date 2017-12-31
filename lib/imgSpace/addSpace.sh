@@ -112,9 +112,10 @@ fnMainHandle() {
     echo "區塊大小 : $blockSize"
     echo "格式化   : $fsType"
     echo "填充空間 :"
-    newImgSpaceName="$_dirsh/$chooseName.$fsType.bs$blockSize.img"
+    newImgSpaceName="$chooseName.$fsType.bs$blockSize.img"
     fnFillSpace $grainName $oneLoopUnitMb $loopTimes $newImgSpaceName
-    _logsh txt "執行 $loopTimes 次 \`cat \"$grainName\" >> \"$newImgSpaceName\"\`"
+    "$_libsh/basesh/logsh" -- "$_fileName" \
+        txt "執行 $loopTimes 次 \`cat \"$grainName\" >> \"$newImgSpaceName\"\`"
 
     _logsh run e2fsck -f "$newImgSpaceName"
     _logsh run resize2fs "$newImgSpaceName"
