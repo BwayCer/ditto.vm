@@ -1,0 +1,539 @@
+$ ./Rotom/create_virtual_hdd/copyVmdk.sh Togepi vHDD-Togepi
+
+目標目錄： /cygdrive/c/Cer/share/Driver/Virtual Machine/Togepi
+硬碟名稱： vHDD-Togepi
+
+創建虛擬硬碟 (Yes(y): 創建； Finish(f): 完成； List(l): 查看清單)： y
+>> 切分硬碟名稱 (可選)： GPT
+>> 選擇硬碟容量 (1: 128 MB (默認值)； 2: 512 MB)：
+>> 給定起始編號 (ex: 1； 默認值 1)：
+>> 給定結束編號 (ex: 2； 默認值 1)：
+>> 提交 0: GPT, 0128M, 1 (Yes； No (默認))； y
+>> [紀錄] 0: GPT, 0128M, 1
+
+創建虛擬硬碟 (Yes(y): 創建； Finish(f): 完成； List(l): 查看清單)： y
+>> 切分硬碟名稱 (可選)：
+>> 選擇硬碟容量 (1: 128 MB (默認值)； 2: 512 MB； 3: 4064 MB)：
+>> 給定起始編號 (ex: 1； 默認值 2)：
+>> 給定結束編號 (ex: 2； 默認值 2)： 257
+>> 提交 1: null Name, 0128M, 2-257 (Yes； No (默認))； y
+>> [紀錄] 1: null Name, 0128M, 2-257
+
+創建虛擬硬碟 (Yes(y): 創建； Finish(f): 完成； List(l): 查看清單)： y
+>> 切分硬碟名稱 (可選)： boot
+>> 選擇硬碟容量 (1: 128 MB (默認值)； 2: 512 MB； 3: 4064 MB)：
+>> 給定起始編號 (ex: 1； 默認值 258)：
+>> 給定結束編號 (ex: 2； 默認值 258)： 260
+>> 提交 2: boot, 0128M, 258-260 (Yes； No (默認))； y
+>> [紀錄] 2: boot, 0128M, 258-260
+
+創建虛擬硬碟 (Yes(y): 創建； Finish(f): 完成； List(l): 查看清單)： y
+>> 切分硬碟名稱 (可選)： 261
+>> 選擇硬碟容量 (1: 128 MB (默認值)； 2: 512 MB； 3: 4064 MB)：
+>> 給定起始編號 (ex: 1； 默認值 261)：
+>> 給定結束編號 (ex: 2； 默認值 261)：
+>> 提交 3: 261, 0128M, 261 (Yes； No (默認))； n
+>> 放棄提交
+
+創建虛擬硬碟 (Yes(y): 創建； Finish(f): 完成； List(l): 查看清單)： y
+>> 切分硬碟名稱 (可選)： opt
+>> 選擇硬碟容量 (1: 128 MB (默認值)； 2: 512 MB； 3: 4064 MB)：
+>> 給定起始編號 (ex: 1； 默認值 261)：
+>> 給定結束編號 (ex: 2； 默認值 261)： 272
+>> 提交 3: opt, 0128M, 261-272 (Yes； No (默認))； y
+>> [紀錄] 3: opt, 0128M, 261-272
+
+創建虛擬硬碟 (Yes(y): 創建； Finish(f): 完成； List(l): 查看清單)： y
+>> 切分硬碟名稱 (可選)： var
+>> 選擇硬碟容量 (1: 128 MB (默認值)； 2: 512 MB； 3: 4064 MB)：
+>> 給定起始編號 (ex: 1； 默認值 273)：
+>> 給定結束編號 (ex: 2； 默認值 273)： 288
+>> 提交 4: var, 0128M, 273-288 (Yes； No (默認))； y
+>> [紀錄] 4: var, 0128M, 273-288
+
+創建虛擬硬碟 (Yes(y): 創建； Finish(f): 完成； List(l): 查看清單)： y
+>> 切分硬碟名稱 (可選)： var_cache
+>> 選擇硬碟容量 (1: 128 MB (默認值)； 2: 512 MB； 3: 4064 MB)：
+>> 給定起始編號 (ex: 1； 默認值 289)：
+>> 給定結束編號 (ex: 2； 默認值 289)： 320
+>> 提交 5: var_cache, 0128M, 289-320 (Yes； No (默認))； y
+>> [紀錄] 5: var_cache, 0128M, 289-320
+
+創建虛擬硬碟 (Yes(y): 創建； Finish(f): 完成； List(l): 查看清單)： y
+>> 切分硬碟名稱 (可選)： var_lib
+>> 選擇硬碟容量 (1: 128 MB (默認值)； 2: 512 MB； 3: 4064 MB)：
+>> 給定起始編號 (ex: 1； 默認值 321)：
+>> 給定結束編號 (ex: 2； 默認值 321)： 416
+>> 提交 6: var_lib, 0128M, 321-416 (Yes； No (默認))； y
+>> [紀錄] 6: var_lib, 0128M, 321-416
+
+創建虛擬硬碟 (Yes(y): 創建； Finish(f): 完成； List(l): 查看清單)： y
+>> 切分硬碟名稱 (可選)： var_log
+>> 選擇硬碟容量 (1: 128 MB (默認值)； 2: 512 MB； 3: 4064 MB)：
+>> 給定起始編號 (ex: 1； 默認值 417)：
+>> 給定結束編號 (ex: 2； 默認值 417)： 419
+>> 提交 7: var_log, 0128M, 417-419 (Yes； No (默認))； y
+>> [紀錄] 7: var_log, 0128M, 417-419
+
+創建虛擬硬碟 (Yes(y): 創建； Finish(f): 完成； List(l): 查看清單)： y
+>> 切分硬碟名稱 (可選)： root
+>> 選擇硬碟容量 (1: 128 MB (默認值)； 2: 512 MB； 3: 4064 MB)：
+>> 給定起始編號 (ex: 1； 默認值 420)：
+>> 給定結束編號 (ex: 2； 默認值 420)： 423
+>> 提交 8: root, 0128M, 420-423 (Yes； No (默認))； y
+>> [紀錄] 8: root, 0128M, 420-423
+
+創建虛擬硬碟 (Yes(y): 創建； Finish(f): 完成； List(l): 查看清單)： y
+>> 切分硬碟名稱 (可選)： GPT
+>> 選擇硬碟容量 (1: 128 MB (默認值)； 2: 512 MB； 3: 4064 MB)：
+>> 給定起始編號 (ex: 1； 默認值 424)：
+>> 給定結束編號 (ex: 2； 默認值 424)：
+>> 提交 9: GPT, 0128M, 424 (Yes； No (默認))； y
+>> [紀錄] 9: GPT, 0128M, 424
+
+創建虛擬硬碟 (Yes(y): 創建； Finish(f): 完成； List(l): 查看清單)： l
+
+size:      128 MB        new file: vHDD-Togepi-s001-GPT.vmdk
+size:      128 MB        new file: vHDD-Togepi-s002.vmdk
+size:      128 MB        new file: vHDD-Togepi-s003.vmdk
+size:      128 MB        new file: vHDD-Togepi-s004.vmdk
+size:      128 MB        new file: vHDD-Togepi-s005.vmdk
+size:      128 MB        new file: vHDD-Togepi-s006.vmdk
+size:      128 MB        new file: vHDD-Togepi-s007.vmdk
+size:      128 MB        new file: vHDD-Togepi-s008.vmdk
+size:      128 MB        new file: vHDD-Togepi-s009.vmdk
+size:      128 MB        new file: vHDD-Togepi-s010.vmdk
+size:      128 MB        new file: vHDD-Togepi-s011.vmdk
+size:      128 MB        new file: vHDD-Togepi-s012.vmdk
+size:      128 MB        new file: vHDD-Togepi-s013.vmdk
+size:      128 MB        new file: vHDD-Togepi-s014.vmdk
+size:      128 MB        new file: vHDD-Togepi-s015.vmdk
+size:      128 MB        new file: vHDD-Togepi-s016.vmdk
+size:      128 MB        new file: vHDD-Togepi-s017.vmdk
+size:      128 MB        new file: vHDD-Togepi-s018.vmdk
+size:      128 MB        new file: vHDD-Togepi-s019.vmdk
+size:      128 MB        new file: vHDD-Togepi-s020.vmdk
+size:      128 MB        new file: vHDD-Togepi-s021.vmdk
+size:      128 MB        new file: vHDD-Togepi-s022.vmdk
+size:      128 MB        new file: vHDD-Togepi-s023.vmdk
+size:      128 MB        new file: vHDD-Togepi-s024.vmdk
+size:      128 MB        new file: vHDD-Togepi-s025.vmdk
+size:      128 MB        new file: vHDD-Togepi-s026.vmdk
+size:      128 MB        new file: vHDD-Togepi-s027.vmdk
+size:      128 MB        new file: vHDD-Togepi-s028.vmdk
+size:      128 MB        new file: vHDD-Togepi-s029.vmdk
+size:      128 MB        new file: vHDD-Togepi-s030.vmdk
+size:      128 MB        new file: vHDD-Togepi-s031.vmdk
+size:      128 MB        new file: vHDD-Togepi-s032.vmdk
+size:      128 MB        new file: vHDD-Togepi-s033.vmdk
+size:      128 MB        new file: vHDD-Togepi-s034.vmdk
+size:      128 MB        new file: vHDD-Togepi-s035.vmdk
+size:      128 MB        new file: vHDD-Togepi-s036.vmdk
+size:      128 MB        new file: vHDD-Togepi-s037.vmdk
+size:      128 MB        new file: vHDD-Togepi-s038.vmdk
+size:      128 MB        new file: vHDD-Togepi-s039.vmdk
+size:      128 MB        new file: vHDD-Togepi-s040.vmdk
+size:      128 MB        new file: vHDD-Togepi-s041.vmdk
+size:      128 MB        new file: vHDD-Togepi-s042.vmdk
+size:      128 MB        new file: vHDD-Togepi-s043.vmdk
+size:      128 MB        new file: vHDD-Togepi-s044.vmdk
+size:      128 MB        new file: vHDD-Togepi-s045.vmdk
+size:      128 MB        new file: vHDD-Togepi-s046.vmdk
+size:      128 MB        new file: vHDD-Togepi-s047.vmdk
+size:      128 MB        new file: vHDD-Togepi-s048.vmdk
+size:      128 MB        new file: vHDD-Togepi-s049.vmdk
+size:      128 MB        new file: vHDD-Togepi-s050.vmdk
+size:      128 MB        new file: vHDD-Togepi-s051.vmdk
+size:      128 MB        new file: vHDD-Togepi-s052.vmdk
+size:      128 MB        new file: vHDD-Togepi-s053.vmdk
+size:      128 MB        new file: vHDD-Togepi-s054.vmdk
+size:      128 MB        new file: vHDD-Togepi-s055.vmdk
+size:      128 MB        new file: vHDD-Togepi-s056.vmdk
+size:      128 MB        new file: vHDD-Togepi-s057.vmdk
+size:      128 MB        new file: vHDD-Togepi-s058.vmdk
+size:      128 MB        new file: vHDD-Togepi-s059.vmdk
+size:      128 MB        new file: vHDD-Togepi-s060.vmdk
+size:      128 MB        new file: vHDD-Togepi-s061.vmdk
+size:      128 MB        new file: vHDD-Togepi-s062.vmdk
+size:      128 MB        new file: vHDD-Togepi-s063.vmdk
+size:      128 MB        new file: vHDD-Togepi-s064.vmdk
+size:      128 MB        new file: vHDD-Togepi-s065.vmdk
+size:      128 MB        new file: vHDD-Togepi-s066.vmdk
+size:      128 MB        new file: vHDD-Togepi-s067.vmdk
+size:      128 MB        new file: vHDD-Togepi-s068.vmdk
+      0 [main] sh 18884 fork: child -1 - forked process 4472 died unexpectedly, retry 0, exit code 0xC0000142, errno 11
+./Rotom/create_virtual_hdd/copyVmdk.sh: fork: retry: Resource temporarily unavailable
+size:      128 MB        new file: vHDD-Togepi-s069.vmdk
+size:      128 MB        new file: vHDD-Togepi-s070.vmdk
+size:      128 MB        new file: vHDD-Togepi-s071.vmdk
+size:      128 MB        new file: vHDD-Togepi-s072.vmdk
+size:      128 MB        new file: vHDD-Togepi-s073.vmdk
+size:      128 MB        new file: vHDD-Togepi-s074.vmdk
+size:      128 MB        new file: vHDD-Togepi-s075.vmdk
+size:      128 MB        new file: vHDD-Togepi-s076.vmdk
+size:      128 MB        new file: vHDD-Togepi-s077.vmdk
+size:      128 MB        new file: vHDD-Togepi-s078.vmdk
+size:      128 MB        new file: vHDD-Togepi-s079.vmdk
+size:      128 MB        new file: vHDD-Togepi-s080.vmdk
+size:      128 MB        new file: vHDD-Togepi-s081.vmdk
+size:      128 MB        new file: vHDD-Togepi-s082.vmdk
+size:      128 MB        new file: vHDD-Togepi-s083.vmdk
+size:      128 MB        new file: vHDD-Togepi-s084.vmdk
+size:      128 MB        new file: vHDD-Togepi-s085.vmdk
+size:      128 MB        new file: vHDD-Togepi-s086.vmdk
+size:      128 MB        new file: vHDD-Togepi-s087.vmdk
+size:      128 MB        new file: vHDD-Togepi-s088.vmdk
+size:      128 MB        new file: vHDD-Togepi-s089.vmdk
+size:      128 MB        new file: vHDD-Togepi-s090.vmdk
+size:      128 MB        new file: vHDD-Togepi-s091.vmdk
+size:      128 MB        new file: vHDD-Togepi-s092.vmdk
+size:      128 MB        new file: vHDD-Togepi-s093.vmdk
+size:      128 MB        new file: vHDD-Togepi-s094.vmdk
+size:      128 MB        new file: vHDD-Togepi-s095.vmdk
+size:      128 MB        new file: vHDD-Togepi-s096.vmdk
+size:      128 MB        new file: vHDD-Togepi-s097.vmdk
+size:      128 MB        new file: vHDD-Togepi-s098.vmdk
+size:      128 MB        new file: vHDD-Togepi-s099.vmdk
+size:      128 MB        new file: vHDD-Togepi-s100.vmdk
+size:      128 MB        new file: vHDD-Togepi-s101.vmdk
+size:      128 MB        new file: vHDD-Togepi-s102.vmdk
+size:      128 MB        new file: vHDD-Togepi-s103.vmdk
+size:      128 MB        new file: vHDD-Togepi-s104.vmdk
+size:      128 MB        new file: vHDD-Togepi-s105.vmdk
+size:      128 MB        new file: vHDD-Togepi-s106.vmdk
+size:      128 MB        new file: vHDD-Togepi-s107.vmdk
+size:      128 MB        new file: vHDD-Togepi-s108.vmdk
+size:      128 MB        new file: vHDD-Togepi-s109.vmdk
+size:      128 MB        new file: vHDD-Togepi-s110.vmdk
+size:      128 MB        new file: vHDD-Togepi-s111.vmdk
+size:      128 MB        new file: vHDD-Togepi-s112.vmdk
+size:      128 MB        new file: vHDD-Togepi-s113.vmdk
+size:      128 MB        new file: vHDD-Togepi-s114.vmdk
+size:      128 MB        new file: vHDD-Togepi-s115.vmdk
+size:      128 MB        new file: vHDD-Togepi-s116.vmdk
+size:      128 MB        new file: vHDD-Togepi-s117.vmdk
+size:      128 MB        new file: vHDD-Togepi-s118.vmdk
+size:      128 MB        new file: vHDD-Togepi-s119.vmdk
+size:      128 MB        new file: vHDD-Togepi-s120.vmdk
+size:      128 MB        new file: vHDD-Togepi-s121.vmdk
+size:      128 MB        new file: vHDD-Togepi-s122.vmdk
+size:      128 MB        new file: vHDD-Togepi-s123.vmdk
+size:      128 MB        new file: vHDD-Togepi-s124.vmdk
+size:      128 MB        new file: vHDD-Togepi-s125.vmdk
+size:      128 MB        new file: vHDD-Togepi-s126.vmdk
+size:      128 MB        new file: vHDD-Togepi-s127.vmdk
+size:      128 MB        new file: vHDD-Togepi-s128.vmdk
+size:      128 MB        new file: vHDD-Togepi-s129.vmdk
+size:      128 MB        new file: vHDD-Togepi-s130.vmdk
+size:      128 MB        new file: vHDD-Togepi-s131.vmdk
+size:      128 MB        new file: vHDD-Togepi-s132.vmdk
+size:      128 MB        new file: vHDD-Togepi-s133.vmdk
+size:      128 MB        new file: vHDD-Togepi-s134.vmdk
+size:      128 MB        new file: vHDD-Togepi-s135.vmdk
+size:      128 MB        new file: vHDD-Togepi-s136.vmdk
+size:      128 MB        new file: vHDD-Togepi-s137.vmdk
+size:      128 MB        new file: vHDD-Togepi-s138.vmdk
+size:      128 MB        new file: vHDD-Togepi-s139.vmdk
+size:      128 MB        new file: vHDD-Togepi-s140.vmdk
+size:      128 MB        new file: vHDD-Togepi-s141.vmdk
+size:      128 MB        new file: vHDD-Togepi-s142.vmdk
+size:      128 MB        new file: vHDD-Togepi-s143.vmdk
+size:      128 MB        new file: vHDD-Togepi-s144.vmdk
+size:      128 MB        new file: vHDD-Togepi-s145.vmdk
+size:      128 MB        new file: vHDD-Togepi-s146.vmdk
+size:      128 MB        new file: vHDD-Togepi-s147.vmdk
+size:      128 MB        new file: vHDD-Togepi-s148.vmdk
+size:      128 MB        new file: vHDD-Togepi-s149.vmdk
+size:      128 MB        new file: vHDD-Togepi-s150.vmdk
+3163451 [main] sh 18884 fork: child -1 - forked process 356 died unexpectedly, retry 0, exit code 0xC0000142, errno 11
+./Rotom/create_virtual_hdd/copyVmdk.sh: fork: retry: Resource temporarily unavailable
+size:      128 MB        new file: vHDD-Togepi-s151.vmdk
+size:      128 MB        new file: vHDD-Togepi-s152.vmdk
+size:      128 MB        new file: vHDD-Togepi-s153.vmdk
+size:      128 MB        new file: vHDD-Togepi-s154.vmdk
+size:      128 MB        new file: vHDD-Togepi-s155.vmdk
+size:      128 MB        new file: vHDD-Togepi-s156.vmdk
+size:      128 MB        new file: vHDD-Togepi-s157.vmdk
+size:      128 MB        new file: vHDD-Togepi-s158.vmdk
+size:      128 MB        new file: vHDD-Togepi-s159.vmdk
+size:      128 MB        new file: vHDD-Togepi-s160.vmdk
+size:      128 MB        new file: vHDD-Togepi-s161.vmdk
+size:      128 MB        new file: vHDD-Togepi-s162.vmdk
+size:      128 MB        new file: vHDD-Togepi-s163.vmdk
+size:      128 MB        new file: vHDD-Togepi-s164.vmdk
+size:      128 MB        new file: vHDD-Togepi-s165.vmdk
+size:      128 MB        new file: vHDD-Togepi-s166.vmdk
+size:      128 MB        new file: vHDD-Togepi-s167.vmdk
+size:      128 MB        new file: vHDD-Togepi-s168.vmdk
+size:      128 MB        new file: vHDD-Togepi-s169.vmdk
+size:      128 MB        new file: vHDD-Togepi-s170.vmdk
+size:      128 MB        new file: vHDD-Togepi-s171.vmdk
+size:      128 MB        new file: vHDD-Togepi-s172.vmdk
+size:      128 MB        new file: vHDD-Togepi-s173.vmdk
+size:      128 MB        new file: vHDD-Togepi-s174.vmdk
+size:      128 MB        new file: vHDD-Togepi-s175.vmdk
+size:      128 MB        new file: vHDD-Togepi-s176.vmdk
+size:      128 MB        new file: vHDD-Togepi-s177.vmdk
+size:      128 MB        new file: vHDD-Togepi-s178.vmdk
+size:      128 MB        new file: vHDD-Togepi-s179.vmdk
+size:      128 MB        new file: vHDD-Togepi-s180.vmdk
+size:      128 MB        new file: vHDD-Togepi-s181.vmdk
+size:      128 MB        new file: vHDD-Togepi-s182.vmdk
+size:      128 MB        new file: vHDD-Togepi-s183.vmdk
+size:      128 MB        new file: vHDD-Togepi-s184.vmdk
+size:      128 MB        new file: vHDD-Togepi-s185.vmdk
+size:      128 MB        new file: vHDD-Togepi-s186.vmdk
+size:      128 MB        new file: vHDD-Togepi-s187.vmdk
+size:      128 MB        new file: vHDD-Togepi-s188.vmdk
+size:      128 MB        new file: vHDD-Togepi-s189.vmdk
+size:      128 MB        new file: vHDD-Togepi-s190.vmdk
+size:      128 MB        new file: vHDD-Togepi-s191.vmdk
+size:      128 MB        new file: vHDD-Togepi-s192.vmdk
+size:      128 MB        new file: vHDD-Togepi-s193.vmdk
+size:      128 MB        new file: vHDD-Togepi-s194.vmdk
+size:      128 MB        new file: vHDD-Togepi-s195.vmdk
+size:      128 MB        new file: vHDD-Togepi-s196.vmdk
+size:      128 MB        new file: vHDD-Togepi-s197.vmdk
+size:      128 MB        new file: vHDD-Togepi-s198.vmdk
+size:      128 MB        new file: vHDD-Togepi-s199.vmdk
+size:      128 MB        new file: vHDD-Togepi-s200.vmdk
+size:      128 MB        new file: vHDD-Togepi-s201.vmdk
+size:      128 MB        new file: vHDD-Togepi-s202.vmdk
+size:      128 MB        new file: vHDD-Togepi-s203.vmdk
+size:      128 MB        new file: vHDD-Togepi-s204.vmdk
+size:      128 MB        new file: vHDD-Togepi-s205.vmdk
+size:      128 MB        new file: vHDD-Togepi-s206.vmdk
+size:      128 MB        new file: vHDD-Togepi-s207.vmdk
+size:      128 MB        new file: vHDD-Togepi-s208.vmdk
+size:      128 MB        new file: vHDD-Togepi-s209.vmdk
+size:      128 MB        new file: vHDD-Togepi-s210.vmdk
+size:      128 MB        new file: vHDD-Togepi-s211.vmdk
+size:      128 MB        new file: vHDD-Togepi-s212.vmdk
+size:      128 MB        new file: vHDD-Togepi-s213.vmdk
+size:      128 MB        new file: vHDD-Togepi-s214.vmdk
+size:      128 MB        new file: vHDD-Togepi-s215.vmdk
+size:      128 MB        new file: vHDD-Togepi-s216.vmdk
+size:      128 MB        new file: vHDD-Togepi-s217.vmdk
+size:      128 MB        new file: vHDD-Togepi-s218.vmdk
+size:      128 MB        new file: vHDD-Togepi-s219.vmdk
+size:      128 MB        new file: vHDD-Togepi-s220.vmdk
+size:      128 MB        new file: vHDD-Togepi-s221.vmdk
+size:      128 MB        new file: vHDD-Togepi-s222.vmdk
+size:      128 MB        new file: vHDD-Togepi-s223.vmdk
+size:      128 MB        new file: vHDD-Togepi-s224.vmdk
+size:      128 MB        new file: vHDD-Togepi-s225.vmdk
+size:      128 MB        new file: vHDD-Togepi-s226.vmdk
+size:      128 MB        new file: vHDD-Togepi-s227.vmdk
+size:      128 MB        new file: vHDD-Togepi-s228.vmdk
+size:      128 MB        new file: vHDD-Togepi-s229.vmdk
+size:      128 MB        new file: vHDD-Togepi-s230.vmdk
+size:      128 MB        new file: vHDD-Togepi-s231.vmdk
+size:      128 MB        new file: vHDD-Togepi-s232.vmdk
+size:      128 MB        new file: vHDD-Togepi-s233.vmdk
+size:      128 MB        new file: vHDD-Togepi-s234.vmdk
+size:      128 MB        new file: vHDD-Togepi-s235.vmdk
+size:      128 MB        new file: vHDD-Togepi-s236.vmdk
+size:      128 MB        new file: vHDD-Togepi-s237.vmdk
+size:      128 MB        new file: vHDD-Togepi-s238.vmdk
+size:      128 MB        new file: vHDD-Togepi-s239.vmdk
+size:      128 MB        new file: vHDD-Togepi-s240.vmdk
+size:      128 MB        new file: vHDD-Togepi-s241.vmdk
+size:      128 MB        new file: vHDD-Togepi-s242.vmdk
+size:      128 MB        new file: vHDD-Togepi-s243.vmdk
+size:      128 MB        new file: vHDD-Togepi-s244.vmdk
+size:      128 MB        new file: vHDD-Togepi-s245.vmdk
+size:      128 MB        new file: vHDD-Togepi-s246.vmdk
+size:      128 MB        new file: vHDD-Togepi-s247.vmdk
+size:      128 MB        new file: vHDD-Togepi-s248.vmdk
+size:      128 MB        new file: vHDD-Togepi-s249.vmdk
+size:      128 MB        new file: vHDD-Togepi-s250.vmdk
+size:      128 MB        new file: vHDD-Togepi-s251.vmdk
+size:      128 MB        new file: vHDD-Togepi-s252.vmdk
+size:      128 MB        new file: vHDD-Togepi-s253.vmdk
+size:      128 MB        new file: vHDD-Togepi-s254.vmdk
+size:      128 MB        new file: vHDD-Togepi-s255.vmdk
+size:      128 MB        new file: vHDD-Togepi-s256.vmdk
+size:      128 MB        new file: vHDD-Togepi-s257.vmdk
+size:      128 MB        new file: vHDD-Togepi-s258-boot.vmdk
+size:      128 MB        new file: vHDD-Togepi-s259-boot.vmdk
+size:      128 MB        new file: vHDD-Togepi-s260-boot.vmdk
+size:      128 MB        new file: vHDD-Togepi-s261-opt.vmdk
+size:      128 MB        new file: vHDD-Togepi-s262-opt.vmdk
+size:      128 MB        new file: vHDD-Togepi-s263-opt.vmdk
+size:      128 MB        new file: vHDD-Togepi-s264-opt.vmdk
+size:      128 MB        new file: vHDD-Togepi-s265-opt.vmdk
+size:      128 MB        new file: vHDD-Togepi-s266-opt.vmdk
+size:      128 MB        new file: vHDD-Togepi-s267-opt.vmdk
+size:      128 MB        new file: vHDD-Togepi-s268-opt.vmdk
+size:      128 MB        new file: vHDD-Togepi-s269-opt.vmdk
+size:      128 MB        new file: vHDD-Togepi-s270-opt.vmdk
+size:      128 MB        new file: vHDD-Togepi-s271-opt.vmdk
+size:      128 MB        new file: vHDD-Togepi-s272-opt.vmdk
+size:      128 MB        new file: vHDD-Togepi-s273-var.vmdk
+size:      128 MB        new file: vHDD-Togepi-s274-var.vmdk
+size:      128 MB        new file: vHDD-Togepi-s275-var.vmdk
+size:      128 MB        new file: vHDD-Togepi-s276-var.vmdk
+size:      128 MB        new file: vHDD-Togepi-s277-var.vmdk
+size:      128 MB        new file: vHDD-Togepi-s278-var.vmdk
+size:      128 MB        new file: vHDD-Togepi-s279-var.vmdk
+size:      128 MB        new file: vHDD-Togepi-s280-var.vmdk
+size:      128 MB        new file: vHDD-Togepi-s281-var.vmdk
+size:      128 MB        new file: vHDD-Togepi-s282-var.vmdk
+size:      128 MB        new file: vHDD-Togepi-s283-var.vmdk
+size:      128 MB        new file: vHDD-Togepi-s284-var.vmdk
+size:      128 MB        new file: vHDD-Togepi-s285-var.vmdk
+size:      128 MB        new file: vHDD-Togepi-s286-var.vmdk
+size:      128 MB        new file: vHDD-Togepi-s287-var.vmdk
+size:      128 MB        new file: vHDD-Togepi-s288-var.vmdk
+size:      128 MB        new file: vHDD-Togepi-s289-var_cache.vmdk
+size:      128 MB        new file: vHDD-Togepi-s290-var_cache.vmdk
+size:      128 MB        new file: vHDD-Togepi-s291-var_cache.vmdk
+size:      128 MB        new file: vHDD-Togepi-s292-var_cache.vmdk
+size:      128 MB        new file: vHDD-Togepi-s293-var_cache.vmdk
+size:      128 MB        new file: vHDD-Togepi-s294-var_cache.vmdk
+size:      128 MB        new file: vHDD-Togepi-s295-var_cache.vmdk
+size:      128 MB        new file: vHDD-Togepi-s296-var_cache.vmdk
+size:      128 MB        new file: vHDD-Togepi-s297-var_cache.vmdk
+size:      128 MB        new file: vHDD-Togepi-s298-var_cache.vmdk
+size:      128 MB        new file: vHDD-Togepi-s299-var_cache.vmdk
+size:      128 MB        new file: vHDD-Togepi-s300-var_cache.vmdk
+size:      128 MB        new file: vHDD-Togepi-s301-var_cache.vmdk
+size:      128 MB        new file: vHDD-Togepi-s302-var_cache.vmdk
+size:      128 MB        new file: vHDD-Togepi-s303-var_cache.vmdk
+size:      128 MB        new file: vHDD-Togepi-s304-var_cache.vmdk
+size:      128 MB        new file: vHDD-Togepi-s305-var_cache.vmdk
+size:      128 MB        new file: vHDD-Togepi-s306-var_cache.vmdk
+size:      128 MB        new file: vHDD-Togepi-s307-var_cache.vmdk
+size:      128 MB        new file: vHDD-Togepi-s308-var_cache.vmdk
+size:      128 MB        new file: vHDD-Togepi-s309-var_cache.vmdk
+size:      128 MB        new file: vHDD-Togepi-s310-var_cache.vmdk
+size:      128 MB        new file: vHDD-Togepi-s311-var_cache.vmdk
+size:      128 MB        new file: vHDD-Togepi-s312-var_cache.vmdk
+size:      128 MB        new file: vHDD-Togepi-s313-var_cache.vmdk
+size:      128 MB        new file: vHDD-Togepi-s314-var_cache.vmdk
+size:      128 MB        new file: vHDD-Togepi-s315-var_cache.vmdk
+size:      128 MB        new file: vHDD-Togepi-s316-var_cache.vmdk
+size:      128 MB        new file: vHDD-Togepi-s317-var_cache.vmdk
+size:      128 MB        new file: vHDD-Togepi-s318-var_cache.vmdk
+size:      128 MB        new file: vHDD-Togepi-s319-var_cache.vmdk
+size:      128 MB        new file: vHDD-Togepi-s320-var_cache.vmdk
+size:      128 MB        new file: vHDD-Togepi-s321-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s322-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s323-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s324-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s325-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s326-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s327-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s328-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s329-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s330-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s331-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s332-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s333-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s334-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s335-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s336-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s337-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s338-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s339-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s340-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s341-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s342-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s343-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s344-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s345-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s346-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s347-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s348-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s349-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s350-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s351-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s352-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s353-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s354-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s355-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s356-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s357-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s358-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s359-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s360-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s361-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s362-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s363-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s364-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s365-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s366-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s367-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s368-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s369-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s370-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s371-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s372-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s373-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s374-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s375-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s376-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s377-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s378-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s379-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s380-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s381-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s382-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s383-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s384-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s385-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s386-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s387-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s388-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s389-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s390-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s391-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s392-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s393-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s394-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s395-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s396-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s397-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s398-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s399-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s400-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s401-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s402-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s403-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s404-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s405-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s406-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s407-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s408-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s409-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s410-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s411-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s412-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s413-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s414-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s415-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s416-var_lib.vmdk
+size:      128 MB        new file: vHDD-Togepi-s417-var_log.vmdk
+size:      128 MB        new file: vHDD-Togepi-s418-var_log.vmdk
+size:      128 MB        new file: vHDD-Togepi-s419-var_log.vmdk
+size:      128 MB        new file: vHDD-Togepi-s420-root.vmdk
+size:      128 MB        new file: vHDD-Togepi-s421-root.vmdk
+size:      128 MB        new file: vHDD-Togepi-s422-root.vmdk
+size:      128 MB        new file: vHDD-Togepi-s423-root.vmdk
+size:      128 MB        new file: vHDD-Togepi-s424-GPT.vmdk
+total:   54272 MB
+
+創建虛擬硬碟 (Yes(y): 創建； Finish(f): 完成； List(l): 查看清單)： f
+
+vHDD-Togepi-GPT                 [  1/  1]   OK
+vHDD-Togepi                     [256/256]   OK
+vHDD-Togepi-boot                [  3/  3]   OK
+vHDD-Togepi-opt                 [ 12/ 12]   OK
+vHDD-Togepi-var                 [ 16/ 16]   OK
+vHDD-Togepi-var_cache           [ 32/ 32]   OK
+vHDD-Togepi-var_lib             [ 88/ 96]   408  OK68725396 [main] sh 18884 fork: child -1 - forked process 5860 died unexpectedly, retry 0, exit code 0xC0000142, errno 11
+./Rotom/create_virtual_hdd/copyVmdk.sh: fork: retry: Resource temporarily unavailable
+vHDD-Togepi-var_lib             [ 96/ 96]   OK
+vHDD-Togepi-var_log             [  3/  3]   OK
+vHDD-Togepi-root                [  4/  4]   OK
+vHDD-Togepi-GPT                 [  1/  1]   OK
