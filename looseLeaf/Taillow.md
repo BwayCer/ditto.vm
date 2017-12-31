@@ -46,15 +46,18 @@ mkfs.ext4 /dev/sdb1
 ```
 
 ```
-mount /dev/sdb1 /home
-
-# or
-# 寫入 fstab
-
 uuid=`blkid -s UUID /dev/sdb1 | sed "s/.*UUID=\"\([a-f0-9-]\+\)\"/\1/"`
 echo \
 "# /dev-Taillow
 UUID=$uuid       /home           ext4            rw,relatime,data=ordered        0 2
+
+# /dev-Taillow/.../varLibDocker.img
+/home/imgSpace/varLibDocker.ext4.bs32K.img      /var/lib/docker ext4            loop,rw,relatime,data=ordered   0 2
+
+# /dev-Taillow/.../srv.img
+/home/imgSpace/srv.ext4.bs32K.img               /srv            ext4            loop,rw,relatime,data=ordered   0 2
 " | sudo tee --append /etc/fstab
+
+sudo reboot
 ```
 
