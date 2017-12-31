@@ -1,4 +1,4 @@
-洛奇亞
+波克比
 =======
 
 
@@ -8,7 +8,7 @@
 * [虛擬機](#虛擬機)
 * [虛擬硬碟](#虛擬硬碟)
 * [作業系統](#作業系統)
-* [環境設置](#環境設置)
+* [環境配置](#環境配置)
 
 
 
@@ -24,7 +24,7 @@
 
 
 ```sh
-./pokedex/hdd.sh add Lugia_host \
+./pokedex/hdd.sh add Togepi \
                  GPT:0008:1   \
                      0128:48  \
                 boot:0128:2   \
@@ -35,7 +35,7 @@
                 root:0128:1   \
                  GPT:0008:999:1
 
-# ./pokedex/hdd.sh info Lugia_host
+# ./pokedex/hdd.sh info Togepi
 # amount: 127, totalSize: 7.9M, totalGrainSize: 15.64G
 #
 # GPT       (0008)   64.0K   [  1-  1/  1]   [        0 -    16383 /    16384 (  8.0M) ]
@@ -49,26 +49,6 @@
 # GPT       (0008)   64.0K   [999-999/  1]   [ 32784384 - 32800767 /    16384 (  8.0M) ]
 ```
 
-```sh
-./pokedex/hdd.sh add Lugia_principal \
-                 GPT:0008:1   \
-                home:0128:16  \
-      var_lib_docker:0128:48  \
-                 srv:0128:24  \
-             var_www:0128:16  \
-                 GPT:0008:999:1
-
-# ./pokedex/hdd.sh info Lugia_principal
-# amount: 106, totalSize: 6.6M, totalGrainSize: 13.01G
-#
-# GPT            (0008)  64.0K   [  1-  1/  1]   [        0 -    16383 /    16384 ( 8.0M) ]
-# home           (0128)   1.0M   [  2- 17/ 16]   [    16384 -  4210687 /  4194304 (2.00G) ]
-# var_lib_docker (0128)   3.0M   [ 18- 65/ 48]   [  4210688 - 16793599 / 12582912 (6.00G) ]
-# srv            (0128)   1.5M   [ 66- 89/ 24]   [ 16793600 - 23085055 /  6291456 (3.00G) ]
-# var_www        (0128)   1.0M   [ 90-105/ 16]   [ 23085056 - 27279359 /  4194304 (2.00G) ]
-# GPT            (0008)  64.0K   [999-999/  1]   [ 27279360 - 27295743 /    16384 ( 8.0M) ]
-```
-
 
 
 ## 作業系統
@@ -78,8 +58,7 @@
 
 
 ```sh
-# /dev/sda -> Lugia_host
-# /dev/sdb -> Lugia_principal
+# /dev/sda -> Togepi
 
 # NAME      Start (sector)   End (sector)    SIZE  FSCode   FSTYPE   MOUNTPOINT
 # sda                                       15.6G
@@ -90,11 +69,6 @@
 # ├─sda5        19415040       31997951        6G    8300     ext4   /mnt/var/lib
 # ├─sda6        31997952       32522239      256M    8300     ext4   /mnt/var/log
 # └─sda7        32522240       32784383      128M    8300     ext4   /mnt/root
-# sdb                                         13G
-# ├─sdb1           16384        4210687        2G    8300     ext4   /mnt/home
-# ├─sdb2         4210688       16793599        6G    8300     ext4   /mnt/var/lib/docker
-# ├─sdb3        16793600       23085055        3G    8300     ext4   /mnt/srv
-# └─sdb4        23085056       27279359        2G    8300     ext4   /mnt/var/www
 
 
 sgdisk --zap-all --clear --mbrtogpt /dev/sda
@@ -105,12 +79,6 @@ sgdisk -n  4:15220736:19415039  -t 4:8300  /dev/sda
 sgdisk -n  5:19415040:31997951  -t 5:8300  /dev/sda
 sgdisk -n  6:31997952:32522239  -t 6:8300  /dev/sda
 sgdisk -n  7:32522240:32784383  -t 7:8300  /dev/sda
-
-sgdisk --zap-all --clear --mbrtogpt /dev/sdb
-sgdisk -n     1:16384:4210687   -t 1:8300  /dev/sdb
-sgdisk -n   2:4210688:16793599  -t 2:8300  /dev/sdb
-sgdisk -n  3:16793600:23085055  -t 3:8300  /dev/sdb
-sgdisk -n  4:23085056:27279359  -t 4:8300  /dev/sdb
 
 
 mkfs.ext4 /dev/sda1
@@ -136,15 +104,6 @@ mkdir /mnt/root
 mkfs.ext4 /dev/sda7
 mount /dev/sda7 /mnt/root
 
-mkdir /mnt/home /mnt/var/lib/docker /mnt/srv /mnt/var/www
-mkfs.ext4 /dev/sdb1
-mkfs.ext4 /dev/sdb2
-mkfs.ext4 /dev/sdb3
-mkfs.ext4 /dev/sdb4
-mount /dev/sdb1 /mnt/home/
-mount /dev/sdb3 /mnt/var/lib/docker/
-mount /dev/sdb2 /mnt/srv/
-mount /dev/sdb4 /mnt/var/www/
 
 
 # 選擇映射站
@@ -192,32 +151,45 @@ systemctl poweroff
 
 
 
-## 環境設置
+## 環境配置
 
 
 ```
-# **更換通用金鑰**
-
 # vim 為主要編輯器
 pacman -Rs --noconfirm vi nano
 ln -s /usr/bin/vim /usr/bin/vi
 
 
 # 主機名稱
-echo Lugia > /etc/hostname
+echo Togepi > /etc/hostname
 
 # 時間
 ln -sf /usr/share/zoneinfo/Asia/Taipei /etc/localtime
 pacman -S --noconfirm ntp
 ntpdate time.stdtime.gov.tw
 # timedatectl 查看時間
+
+# 語系
+sed -i "s/^#\(\(en_US\|zh_TW\).UTF-8 UTF-8\)/\1/" /etc/locale.gen
+locale-gen
+locale | sed "s/\([A-Z_]=\).*/\1\"zh_TW.UTF-8\"/" | sed "s/\(LC_\(TIME\)=\).*/\1\"en_US.UTF-8\"/" > /etc/locale.conf
 ```
 
 ```
-pacman -S --noconfirm ppp
-pacman -S --noconfirm sudo git docker
+pacman -S --noconfirm arch-install-scripts cifs-utils ntfs-3g gptfdisk exfat-utils partclone
+pacman -S --noconfirm sudo git tmux wget tree docker
+
+# sudo
+visudo
+  # %wheel ALL=(ALL)
 
 # docker
 systemctl enable docker.service
+
+
+# 用戶
+useradd -m -u 1000 -G wheel,docker bwaycer
+# grep bwaycer /etc/passwd /etc/shadow /etc/group
+passwd bwaycer
 ```
 

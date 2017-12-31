@@ -109,8 +109,8 @@
 ```
 # ./bin/pokedex hdd info <name>
 
-./bin/hdd.sh info <vhddPath>
-./bin/hdd.sh info --update <vhddPath>
+./pokedex/hdd.sh info <vhddPath>
+./pokedex/hdd.sh info --update <vhddPath>
 ```
 
 
@@ -134,7 +134,7 @@
 #     [<磁區名稱 [A-Za-z0-9_]>:]<單磁區大小 (0008|0128|0512|4064)>:[<起始編號 (1-999)>:]<數量 (1-999)> \
 #     [[<磁區名稱>:]<單磁區大小>:[<起始編號>:]<數量> ...]
 
-./bin/hdd.sh add \
+./pokedex/hdd.sh add \
     [--noconfirm] \
     <目標目錄> \
     [<磁區名稱 [A-Za-z0-9_]>] \
@@ -142,7 +142,7 @@
     [<起始編號 (1-999)>] \
     <數量 (1-999)>
 
-./bin/hdd.sh add \
+./pokedex/hdd.sh add \
     [--noconfirm] \
     <目標目錄> \
     [<磁區名稱 [A-Za-z0-9_]>:]<單磁區大小 (0008|0128|0512|4064)>:[<起始編號 (1-999)>:]<數量 (1-999)> \
