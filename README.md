@@ -55,5 +55,6 @@ sh -c "`curl -L https://goo.gl/i4bseq`"
   * [圖圖犬](/looseLeaf/Smeargle.md)
   * [洛奇亞](/looseLeaf/Lugia.md)
   * [波克比](/looseLeaf/Togepi.md)
+  * [傲骨燕](/looseLeaf/Taillow.md)
 * [通用金鑰](/looseLeaf/vmpass.md)
 

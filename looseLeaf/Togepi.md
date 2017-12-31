@@ -8,6 +8,7 @@
 * [虛擬機](#虛擬機)
 * [虛擬硬碟](#虛擬硬碟)
 * [作業系統](#作業系統)
+* [環境配置](#環境配置)
 
 
 
@@ -146,5 +147,49 @@ arch-chroot /mnt
 
 umount -R /mnt
 systemctl poweroff
+```
+
+
+
+## 環境配置
+
+
+```
+# vim 為主要編輯器
+pacman -Rs --noconfirm vi nano
+ln -s /usr/bin/vim /usr/bin/vi
+
+
+# 主機名稱
+echo Togepi > /etc/hostname
+
+# 時間
+ln -sf /usr/share/zoneinfo/Asia/Taipei /etc/localtime
+pacman -S --noconfirm ntp
+ntpdate time.stdtime.gov.tw
+# timedatectl 查看時間
+
+# 語系
+sed -i "s/^#\(\(en_US\|zh_TW\).UTF-8 UTF-8\)/\1/" /etc/locale.gen
+locale-gen
+locale | sed "s/\([A-Z_]=\).*/\1\"zh_TW.UTF-8\"/" | sed "s/\(LC_\(TIME\)=\).*/\1\"en_US.UTF-8\"/" > /etc/locale.conf
+```
+
+```
+pacman -S --noconfirm arch-install-scripts cifs-utils ntfs-3g gptfdisk exfat-utils partclone
+pacman -S --noconfirm sudo git tmux wget tree docker
+
+# sudo
+visudo
+  # %wheel ALL=(ALL)
+
+# docker
+systemctl enable docker.service
+
+
+# 用戶
+useradd -m -u 1000 -G wheel,docker bwaycer
+# grep bwaycer /etc/passwd /etc/shadow /etc/group
+passwd bwaycer
 ```
 
