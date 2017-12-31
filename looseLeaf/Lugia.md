@@ -8,6 +8,7 @@
 * [虛擬機](#虛擬機)
 * [虛擬硬碟](#虛擬硬碟)
 * [作業系統](#作業系統)
+* [環境設置](#環境設置)
 
 
 
@@ -187,5 +188,36 @@ arch-chroot /mnt
 
 umount -R /mnt
 systemctl poweroff
+```
+
+
+
+## 環境設置
+
+
+```
+# **更換通用金鑰**
+
+# vim 為主要編輯器
+pacman -Rs --noconfirm vi nano
+ln -s /usr/bin/vim /usr/bin/vi
+
+
+# 主機名稱
+echo Lugia > /etc/hostname
+
+# 時間
+ln -sf /usr/share/zoneinfo/Asia/Taipei /etc/localtime
+pacman -S --noconfirm ntp
+ntpdate time.stdtime.gov.tw
+# timedatectl 查看時間
+```
+
+```
+pacman -S --noconfirm ppp
+pacman -S --noconfirm sudo git docker
+
+# docker
+systemctl enable docker.service
 ```
 
