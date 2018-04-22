@@ -9,11 +9,12 @@ rtnResolve_ParentDirectory=""
 fnResolve_ParentDirectory() {
     local path="$1"
 
-    while [ -n "`echo "$path" | grep \"/\.\.\B\"`" ]
+    while [ -n "`echo "$path" | grep "/\([^/]*[^./][^/]*\)/\.\.\B"`" ]
     do
-        path=`echo "$path" | sed "s/\/\([^\/]*\)\/\.\.//g"`
+        path=`echo "$path" | sed "s/\/\([^/]*[^./][^/]*\)\/\.\.//"`
     done
 
+    path=`echo "$path" | sed "s/^\([^/]*[^./][^/]*\)\/\.\././"`
     rtnResolve_ParentDirectory="$path"
 }
 
@@ -24,12 +25,18 @@ fnResolve() {
     local relativeParentDirectory
 
     path=`echo "$path" | sed "s/\/\{2,\}/\//g"`
-    relativeParentDirectory=`echo "$path" | sed "s/^\([.\/]*\)\(.*\)/\1/"`
-    path=`echo "$path" | sed "s/^\([.\/]*\)\(.*\)/\2/"`
-    fnResolve_ParentDirectory "$path"
-    path="${relativeParentDirectory}${rtnResolve_ParentDirectory}"
     path=`echo "$path" | sed "s/\/\.\//\//g"`
-    path=`echo "$path" | sed "s/^\.\///g"`
+
+    relativeParentDirectory=`   echo "$path" | sed "s/^\([.\/]*\)\(.*\)/\1/"`
+    fnResolve_ParentDirectory "`echo "$path" | sed "s/^\([.\/]*\)\(.*\)/\2/"`"
+    if [ -n "`echo $rtnResolve_ParentDirectory | grep "^\."`" ] \
+        && [ -n "$relativeParentDirectory" ];
+    then
+        rtnResolve_ParentDirectory=`echo "$rtnResolve_ParentDirectory" \
+            | sed "s/^\.\///g"`
+    fi
+    path="${relativeParentDirectory}${rtnResolve_ParentDirectory}"
+
     path=`echo "$path" | sed "s/\/$//g"`
 
     rtnResolve="$path"
