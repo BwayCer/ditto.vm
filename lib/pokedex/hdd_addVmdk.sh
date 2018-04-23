@@ -132,10 +132,6 @@ addVmdk() {
     local startNum=$5
     local totalNum=$6
 
-    local regexParseOption
-    regexParseOption="^\([A-Za-z][A-Za-z0-9_]*\)\? \(0008\|0128\|0512\|4064\) "
-    regexParseOption=$regexParseOption"\([1-9][0-9]\{,2\}\)\? \([1-9][0-9]\{,2\}\)$"
-
     if [ ! -f "$vhddDirPath/info.txt" ] || [ ! -d "$vhddDirPath/vHDD/" ]; then
         tmpErrMsg="[錯誤] 虛擬硬碟目錄未提供或不正確。"
         echo -e "\e[01;31m${tmpErrMsg}\e[00m"
@@ -144,14 +140,6 @@ addVmdk() {
 
     if [ ! -f "$vhddDirPath/.pokedex_hddInfo.tmp" ]; then
         tmpErrMsg="[錯誤] 缺少文件。 (\".pokedex_hddInfo.tmp\")"
-        echo -e "\e[01;31m${tmpErrMsg}\e[00m"
-        exit 1
-    fi
-
-
-    tmp=`echo "$name $grainSizeM $startNum $totalNum" | grep "$regexParseOption"`
-    if [ -z "$tmp" ]; then
-        tmpErrMsg="[錯誤] 請再次檢查參數。"
         echo -e "\e[01;31m${tmpErrMsg}\e[00m"
         exit 1
     fi
