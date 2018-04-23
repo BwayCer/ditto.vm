@@ -22,7 +22,7 @@ _shScript() {
 
 fnHelp_main() { echo "# 新增虛擬硬碟。
 # 磁區名稱： [A-Za-z0-9_]
-# 單磁區大小： (0008|0128|0512|4064)
+# 單磁區大小： (0008|0032|0064|0128|0512|4064)
 # 起始編號： (1-999)
 # 數量： (1-999)
 [[USAGE]] <目標目錄>
@@ -51,11 +51,11 @@ fnMain() {
 
     local val
     local regexParseOptionA="^\(\([A-Za-z][A-Za-z0-9_]*\) \+\)\?"
-    regexParseOptionA+="\(0008\|0128\|0512\|4064\) \+"
+    regexParseOptionA+="\(0008\|0032\|0064\|0128\|0512\|4064\) \+"
     regexParseOptionA+="\(\([1-9][0-9]\{,2\}\) \+\)\?"
     regexParseOptionA+="\([1-9][0-9]\{,2\}\) *$"
     local regexParseOptionB="^\(\([A-Za-z][A-Za-z0-9_]*\):\)\?"
-    regexParseOptionB+="\(0008\|0128\|0512\|4064\):"
+    regexParseOptionB+="\(0008\|0032\|0064\|0128\|0512\|4064\):"
     regexParseOptionB+="\(\([1-9][0-9]\{,2\}\):\)\?"
     regexParseOptionB+="\([1-9][0-9]\{,2\}\)$"
 
@@ -315,6 +315,16 @@ fnobjSampleVhddInfo() {
             sourceFile="sampleGrain_0008M_s16384.vmdk"
             size=65536
             numGrainSizeM=8
+            ;;
+        "0032" )
+            sourceFile="sampleGrain_0032M_s65536.vmdk"
+            size=65536
+            numGrainSizeM=32
+            ;;
+        "0064" )
+            sourceFile="sampleGrain_0064M_s131072.vmdk"
+            size=131072
+            numGrainSizeM=64
             ;;
         "0128" )
             sourceFile="sampleGrain_0128M_s262144.vmdk"

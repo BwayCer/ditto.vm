@@ -34,7 +34,7 @@ fnMain() {
 
 
     tmpVhddInfo=`ls -l "$vhddDirPath/vHDD" | awk '{ print $9 "+size" $5 }' | sed "1d"`
-    regexInfo="\(s\([0-9]\{3\}\)-g\(0008\|0128\|0512\|4064\)\(-\([A-Za-z0-9_]\+\)\)\?\.vmdk\)+size\([1-9][0-9]*\)"
+    regexInfo="\(s\([0-9]\{3\}\)-g\(0008\|0032\|0064\|0128\|0512\|4064\)\(-\([A-Za-z0-9_]\+\)\)\?\.vmdk\)+size\([1-9][0-9]*\)"
 
     for val in $tmpVhddInfo
     do
