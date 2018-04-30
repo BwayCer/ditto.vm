@@ -182,3 +182,7 @@ systemctl enable lightdm.service
 pacman -S --noconfirm xfce4 xfce4-taskmanager
 ```
 
+```
+pacman -S --noconfirm sudo unzip
+```
+

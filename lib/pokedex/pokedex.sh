@@ -2,6 +2,27 @@
 # 圖鑑
 
 
+#!/bin/bash
+# 樣本腳本
+
+
+##shStyle 介面函式
+# 對外接口 請驗證輸入值
+# 禁止介面函式間相互調用 避免全域變數混雜
+
+##shStyle 共享變數
+
+##shStyle 函式庫
+# 若有來源者請註記
+# 所有功能請在函式範圍內完成 fnLib, fnLib_xxx, rtnLib_xxx
+# 僅允許使用 腳本環境、共享變數 的全域物件
+
+##shStyle 腳本環境
+
+##shStyle ###
+# 不共享環境、專屬環境或其他分類
+
+
 ##shStyle ###
 
 
@@ -110,6 +131,53 @@ fnMain_hdd_add() {
 
 ##shStyle 函式庫
 
+
+fnPlatformCode() {
+    local method="$1"
+    local platformCode=$2
+
+    case "$method" in
+        get )
+            case `uname` in
+                *CYGWIN* ) echo 2 ;; # Cygwin
+                * )        echo 1 ;; # Linux
+            esac
+            ;;
+        parse )
+            case $platformCode in
+                3  ) echo "1 2" ;;
+                *  ) echo $platformCode ;;
+            esac
+            ;;
+    esac
+}
+
+rtnLsList=()
+fnLsList() {
+    local txt len idx val
+    local lsOpt="$1"
+    [ "${lsOpt:0:1}" == "-" ] && shift || lsOpt=""
+
+    local list path
+    list=()
+
+    for path in "$@"
+    do
+        txt=`ls $lsOpt -1 $path 2> /dev/null`
+        [ $? -ne 0 ] && continue
+
+        len=`ls $lsOpt -1 $path | wc -l`
+        [ $len -eq 0 ] && continue
+
+        for idx in `seq 1 $len`
+        do
+            val=`echo "$txt" | sed -n "${idx}p"`
+            list[ ${#list[@]} ]=$val
+        done
+    done
+
+    rtnLsList=("${list[@]}")
+}
 
 
 ##shStyle 腳本環境
